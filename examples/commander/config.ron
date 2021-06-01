@@ -1,0 +1,22 @@
+CommanderConfig(
+  name: "Cpt. Steven Rogers",
+  addr: "127.0.0.1:14114",
+  commands: 
+  [
+    Command (
+    name: "echo",
+    args: [
+    "Hello, world!"
+    ]),
+    Command (
+    name: "echo",
+    args: [
+    "Hello, world!"
+    ]),
+    Command (
+    name: "echo",
+    args: [
+    "Hello, world!"
+    ])
+  ]
+)
