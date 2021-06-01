@@ -1,14 +1,24 @@
-pub mod report;
-pub mod soldier_config;
-
-use log::{info, warn};
 use std::{fs::File, path::Path};
 
-use crate::commander::command::Command;
-use report::Report;
+use log::{info, warn};
+
 use soldier_config::SoldierConfig;
+
+use crate::commander::command::Command;
+use crate::reporter::report::Report;
+
+pub mod soldier_config;
+
+/// Represents the methods needed to execute operation on client side
 pub struct Soldier;
 impl Soldier {
+    /**
+        Loading a configuration file called "config.ron" containing a representation of SoldierConfig.
+
+        It's panic if the file could not be open, if the file does not exists, if the content was
+        not a SoldierConfig structure or it could not be deserialized.
+
+     */
     pub fn config() -> SoldierConfig {
         let config_file = if let Ok(config_file) = File::open(Path::new("config.ron")) {
             config_file
@@ -26,6 +36,7 @@ impl Soldier {
         }
     }
 
+    /// Run a command and return a Report with the result.
     pub fn run_commands(commands: Vec<Command>) -> Vec<Report> {
         info!("Running commands");
         let mut list_responses_from_commands: Vec<Report> = vec![];

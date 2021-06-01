@@ -2,8 +2,13 @@ use std::error::Error;
 
 use log::error;
 
-use crate::{commander::command::Command, soldier::report::Report};
+use crate::{commander::command::Command};
+use crate::reporter::report::Report;
 
+/**
+    Trait with methods to work on the conversion between bytes and vec to send through tcp
+    connection
+*/
 pub trait Communication {
     fn from_bytes(bytes: Vec<u8>) -> Result<Self, Box<dyn Error>>
     where

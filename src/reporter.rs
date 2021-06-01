@@ -1,15 +1,21 @@
-use log::info;
 use std::{
     io::{Read, Write},
     net::{Shutdown, TcpStream},
 };
 
+use log::info;
+
+use report::Report;
+
 use crate::commander::command::Command;
 use crate::communication::Communication;
-use crate::soldier::report::Report;
 
+pub mod report;
+
+/// Represents methods what works for the network communication.
 pub struct Reporter;
 impl Reporter {
+    /// Connect to a address server
     pub fn connect(addr: String) -> TcpStream {
         info!("Trying to connect to the server {}", &addr);
         let tcp_stream = if let Ok(tcp_stream) = TcpStream::connect(addr) {
@@ -22,6 +28,7 @@ impl Reporter {
         tcp_stream
     }
 
+    /// Send a Report to a tcp connection
     pub fn send_report(mut tcp_stream: &TcpStream, reports: Vec<Report>) -> Result<usize, String> {
         info!("Trying to serialize the reports");
         match Report::from_vec_to_bytes(reports) {
@@ -44,6 +51,7 @@ impl Reporter {
         }
     }
 
+    /// Receive commands from a tcp connection
     pub fn receive_commands(mut tcp_stream: &TcpStream) -> Result<Vec<Command>, String> {
         let mut buf = [0 as u8; 1024];
         info!("Trying to read from the stream");
@@ -59,7 +67,7 @@ impl Reporter {
                         return Ok(commands);
                     }
                     Err(_) => {
-                        return Err("Could not deserilize the commands from the stream".to_string());
+                        return Err("Could not deserialize the commands from the stream".to_string());
                     }
                 }
             }
@@ -69,8 +77,9 @@ impl Reporter {
         }
     }
 
-    pub fn desconnect(tcp_stream: &TcpStream) {
-        info!("Desconnecting from the stream");
+    /// Disconnect a tcp connection
+    pub fn disconnect(tcp_stream: &TcpStream) {
+        info!("Disconnecting from the stream");
         tcp_stream.shutdown(Shutdown::Both).unwrap()
     }
 }
