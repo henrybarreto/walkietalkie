@@ -1,3 +1,5 @@
+![fluxo de trabalho de exemplo](https://github.com/henrybarreto/walkietalkie/actions/workflows/rust.yml/badge.svg)
+
 ## What is "walkietalkie"?
 
 It is a Rust crate what provides methods and structure to be able communication between clients and server, load configuration
