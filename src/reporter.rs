@@ -67,7 +67,9 @@ impl Reporter {
                         return Ok(commands);
                     }
                     Err(_) => {
-                        return Err("Could not deserialize the commands from the stream".to_string());
+                        return Err(
+                            "Could not deserialize the commands from the stream".to_string()
+                        );
                     }
                 }
             }

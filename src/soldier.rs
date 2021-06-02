@@ -13,12 +13,12 @@ pub mod soldier_config;
 pub struct Soldier;
 impl Soldier {
     /**
-        Loading a configuration file called "config.ron" containing a representation of SoldierConfig.
+       Loading a configuration file called "config.ron" containing a representation of SoldierConfig.
 
-        It's panic if the file could not be open, if the file does not exists, if the content was
-        not a SoldierConfig structure or it could not be deserialized.
+       It's panic if the file could not be open, if the file does not exists, if the content was
+       not a SoldierConfig structure or it could not be deserialized.
 
-     */
+    */
     pub fn config() -> SoldierConfig {
         let config_file = if let Ok(config_file) = File::open(Path::new("config.ron")) {
             config_file

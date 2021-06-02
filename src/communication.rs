@@ -2,7 +2,7 @@ use std::error::Error;
 
 use log::error;
 
-use crate::{commander::command::Command};
+use crate::commander::command::Command;
 use crate::reporter::report::Report;
 
 /**
