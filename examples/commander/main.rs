@@ -10,6 +10,7 @@ use std::{
 
 use walkietalkie::commander::Commander;
 use walkietalkie::commander::{command::Command, commander_config::CommanderConfig};
+use walkietalkie::radio::Radio;
 
 fn main() -> Result<(), Box<dyn Error>> {
     SimpleLogger::new().init().unwrap();
@@ -39,9 +40,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let commands_from_thread =
                         commands_clone.lock().expect("Could not lock commands");
                     info!("Sending orders..");
-                    Commander::send_commands(&mut tcp_stream, commands_from_thread.clone());
+                    Commander::send_information(&mut tcp_stream, commands_from_thread.clone())
+                        .unwrap();
                     info!("Recieving reports...");
-                    let reports = Commander::receive_reports(&mut tcp_stream);
+                    let reports = Commander::receive_information(&mut tcp_stream).unwrap();
                     info!("Sending reports through the channel...");
                     commander_channel_send.send(reports).unwrap();
                     info!("Desconnecting from a client..");

@@ -26,10 +26,7 @@ pub trait Communication {
 impl Communication for Report {
     fn from_bytes(bytes: Vec<u8>) -> Result<Report, Box<dyn Error>> {
         match bincode::deserialize(&bytes) {
-            Ok(report) => {
-                let report: Report = report;
-                Ok(report)
-            }
+            Ok(report) => Ok(report),
             Err(error) => {
                 error!("Could not convert from bytes to Report");
                 Err(error)
@@ -47,10 +44,7 @@ impl Communication for Report {
     }
     fn from_bytes_to_vec(bytes: Vec<u8>) -> Result<Vec<Report>, Box<dyn Error>> {
         match bincode::deserialize(&bytes) {
-            Ok(reports) => {
-                let reports: Vec<Report> = reports;
-                Ok(reports)
-            }
+            Ok(reports) => Ok(reports),
             Err(error) => {
                 error!("Could not convert from bytes to Vec<Report>");
                 Err(error)
@@ -59,10 +53,7 @@ impl Communication for Report {
     }
     fn from_vec_to_bytes(reports: Vec<Report>) -> Result<Vec<u8>, Box<dyn Error>> {
         match bincode::serialize(&reports) {
-            Ok(bytes) => {
-                let bytes: Vec<u8> = bytes;
-                Ok(bytes)
-            }
+            Ok(bytes) => Ok(bytes),
             Err(error) => {
                 error!("Could not convert from Vec<Report> to bytes");
                 Err(error)

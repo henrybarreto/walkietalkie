@@ -1,12 +1,13 @@
+use std::process::Output;
 use std::{fs::File, path::Path};
 
-use log::{info, warn};
+use log::{info};
 
 use soldier_config::SoldierConfig;
 
 use crate::commander::command::Command;
+
 use crate::reporter::report::Report;
-use std::process::Output;
 
 pub mod soldier_config;
 
@@ -30,7 +31,7 @@ impl Soldier {
     }
     fn convert_config_to_struct(config_file: File) -> SoldierConfig {
         match ron::de::from_reader(config_file) {
-            Ok(commander_config) => commander_config,
+            Ok(soldier_config) => soldier_config,
             Err(error) => {
                 panic!(
                     "Could not deserialize the config.ron file to Config: {}",
@@ -40,17 +41,18 @@ impl Soldier {
         }
     }
     pub fn config() -> SoldierConfig {
-        Soldier::convert_config_to_struct(
-            Soldier::load_config_file("config.ron".to_string())
-        )
+        Self::convert_config_to_struct(Self::load_config_file("config.ron".to_string()))
     }
 
     fn run_command(command: Command) -> Output {
         match std::process::Command::new(command.name)
             .args(command.args)
-            .output() {
-            Ok(output_from_command) => { output_from_command }
-            Err(_) => { panic!("Could not execute a command") }
+            .output()
+        {
+            Ok(output_from_command) => output_from_command,
+            Err(_) => {
+                panic!("Could not execute a command")
+            }
         }
     }
 
@@ -65,12 +67,12 @@ impl Soldier {
     /// Run a command and return a Report with the result.
     pub fn run_commands(commands: Vec<Command>) -> Vec<Report> {
         info!("Running commands");
-        commands.into_iter()
+        commands
+            .into_iter()
             .map(|command| {
                 info!("Trying to executing the commands");
-                Soldier::create_report_from_output(
-                    Soldier::run_command(command.clone())
-                )
-            }).collect()
+                Soldier::create_report_from_output(Soldier::run_command(command.clone()))
+            })
+            .collect()
     }
 }

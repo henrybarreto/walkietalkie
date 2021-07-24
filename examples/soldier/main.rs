@@ -7,6 +7,7 @@
 
 //use log::info;
 use simple_logger::SimpleLogger;
+use walkietalkie::radio::Radio;
 use walkietalkie::{reporter::Reporter, soldier::Soldier};
 //use walkietalkie::{Reporter, soldier::Soldier};
 
@@ -32,9 +33,9 @@ fn main() {
         loop {*/
     let config = Soldier::config();
     let mut tcp_stream = Reporter::connect(config.addr.clone());
-    let commands_recieved = Reporter::receive_commands(&mut tcp_stream).unwrap();
+    let commands_recieved = Reporter::receive_information(&mut tcp_stream).unwrap();
     let commands_output = Soldier::run_commands(commands_recieved);
-    let _bytes_sent = Reporter::send_report(&mut tcp_stream, commands_output).unwrap();
+    let _bytes_sent = Reporter::send_information(&mut tcp_stream, commands_output).unwrap();
     Reporter::disconnect(&tcp_stream);
 
     /*
