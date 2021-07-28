@@ -58,7 +58,7 @@ impl Soldier {
 
     fn create_report_from_output(output_from_command: Output) -> Report {
         Report {
-            status: output_from_command.status.code().unwrap(),
+            status: output_from_command.status.code().unwrap() as u8,
             stdout: output_from_command.stdout,
             stderr: output_from_command.stderr,
         }
