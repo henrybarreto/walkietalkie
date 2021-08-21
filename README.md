@@ -15,20 +15,18 @@ It can be util when you have many devices and just want to execute a few command
 ## How it works?
 
 ### The Commander:
-- Listening for TCP connections
-- Spawn a new thread
-- Send commands inside "config.ron" file to Soldier
+
+- Send commands inside "commander.ron" file
 - Wait for a response
 - Show its in terminal
   - *This output is actually just for debug*
 
-### The Soldier: 
+### The Soldier:
 
-- Try to connect with a server addr from the "config.ron" file
+- Listening for TCP connections
 - Require commands
 - Executes it
 - Send back the Responses
-- Write down output
 - Wait new commands
 
 ## How to use?
@@ -42,10 +40,14 @@ Configure the "commander.ron" to Commander and "soldier.ron" to Soldier.
 
 ### Run Commander
 ```bash
-cargo run -p soldier
+cargo run -p commander 
 ```
 
 ### Run Soldier
 ```bash
-cargo run -p commander 
+cargo run -p soldier 
 ```
+When Soldier is running, it will produce three files: `soldier.err`, `soldier.out` and `soldier.pid`.
+- `soldier.err` is where you can find the erros occur;
+- `solider.out` is the soldier's default output;
+- `soldier.pid` is the PID of running process.
