@@ -1,47 +1,57 @@
-use std::process::Output;
-use std::{fs::File, path::Path};
+pub mod soldier_config;
 
-use log::{info};
+use std::{
+    error::Error,
+    fs::File,
+    net::{Shutdown, TcpListener, TcpStream},
+    path::Path,
+    sync::mpsc::{channel, Receiver, Sender},
+};
+use log::info;
 
+use crate::radio::Radio;
+use crate::reporter::report::Report;
 use soldier_config::SoldierConfig;
 
 use crate::commander::command::Command;
+use std::process::{Output};
 
-use crate::reporter::report::Report;
-
-pub mod soldier_config;
-
-/// Represents the methods needed to execute operation on client side
-pub struct Soldier;
-
+/// Represents methods what to open the connection to soldier
+#[derive(Clone, Debug)]
+pub struct Soldier {
+    pub config: SoldierConfig,
+}
 impl Soldier {
+    /// Define the configuration to the server
+    pub fn new(config: SoldierConfig) -> Self {
+        Soldier { config }
+    }
     /**
-    Loading a configuration file called "config.ron" containing a representation of SoldierConfig.
+       Loading a configuration file called "commander.ron" containing a representation of CommanderConfig.
 
-    It's panic if the file could not be open, if the file does not exists, if the content was
-    not a SoldierConfig structure or it could not be deserialized.
-
-     */
+       It's panic if the file could not be open, if the file does not exists, if the content was
+       not a SoldierConfig structure or it could not be deserialized.
+    */
     fn load_config_file(path_config_file: String) -> File {
         if let Ok(config_file) = File::open(Path::new(&path_config_file)) {
             config_file
         } else {
-            panic!("Could not read the config.ron file");
+            panic!("Could not read the soldier.ron file");
         }
     }
     fn convert_config_to_struct(config_file: File) -> SoldierConfig {
         match ron::de::from_reader(config_file) {
-            Ok(soldier_config) => soldier_config,
+            Ok(commander_config) => commander_config,
             Err(error) => {
                 panic!(
-                    "Could not deserialize the config.ron file to Config: {}",
+                    "Could not deserialize the soldier.ron file to Config: {}",
                     error
                 )
             }
         }
     }
     pub fn config() -> SoldierConfig {
-        Self::convert_config_to_struct(Self::load_config_file("config.ron".to_string()))
+        Self::convert_config_to_struct(Self::load_config_file("soldier.ron".to_string()))
     }
 
     fn run_command(command: Command) -> Output {
@@ -71,8 +81,26 @@ impl Soldier {
             .into_iter()
             .map(|command| {
                 info!("Trying to executing the commands");
-                Soldier::create_report_from_output(Soldier::run_command(command.clone()))
+                Self::create_report_from_output(Self::run_command(command.clone()))
             })
             .collect()
     }
+
+    /// Listen for a tcp connection
+    pub fn listen(&self) -> Result<TcpListener, impl Error> {
+        match TcpListener::bind(self.config.addr.clone()) {
+            Ok(listener) => Ok(listener),
+            Err(error) => Err(error),
+        }
+    }
+    pub fn channel() -> (Sender<Vec<Report>>, Receiver<Vec<Report>>) {
+        channel()
+    }
+
+    /// Disconnect a tcp connection
+    pub fn disconnect(tcp_stream: &TcpStream) {
+        tcp_stream.shutdown(Shutdown::Both).unwrap();
+    }
 }
+
+impl Radio<'static, Report, Command> for Soldier {}

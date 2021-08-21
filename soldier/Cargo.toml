@@ -1,5 +1,6 @@
 [package]
 name = "soldier"
+description = "walkietalkie server what execute commands and send output back to Commander client"
 version = "0.1.0"
 edition = "2018"
 

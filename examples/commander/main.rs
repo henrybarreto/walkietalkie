@@ -9,18 +9,20 @@ use std::{
 };
 
 use walkietalkie::commander::Commander;
-use walkietalkie::commander::{command::Command, commander_config::CommanderConfig};
 use walkietalkie::radio::Radio;
+use walkietalkie::soldier::Soldier;
+use walkietalkie::soldier::{command::Command, soldier_config::SoldierConfig};
+use walkietalkie::commander::command::Command;
 
 fn main() -> Result<(), Box<dyn Error>> {
     SimpleLogger::new().init().unwrap();
 
     let thread_pool = thread_pool::ThreadPool::new(4);
 
-    let config: CommanderConfig = Commander::config();
+    let config = Soldier::config();
 
     let commands: Vec<Command> = config.commands.clone(); //commands_defined();
-    let boss = Commander::new(config.clone());
+    let boss = Soldier::new(config.clone());
 
     let connections = boss.listen().expect("Could not listen on this addr");
     info!("Listening!");
@@ -30,20 +32,20 @@ fn main() -> Result<(), Box<dyn Error>> {
             Ok(mut tcp_stream) => {
                 info!("Connected with a client");
                 info!("Client IP: {}", tcp_stream.peer_addr().unwrap().to_string());
-                let (commander_channel_send, commander_channel_recv) = Commander::channel();
+                let (commander_channel_send, commander_channel_recv) = Soldier::channel();
                 let commands_clone = Arc::new(Mutex::new(commands.clone()));
                 let commander_clone = Arc::new(Mutex::new(boss.clone()));
                 info!("Opening a thread...");
                 thread_pool.execute(move || {
                     let _commander_from_thread =
-                        commander_clone.lock().expect("Could not lock commander");
+                        commander_clone.lock().expect("Could not lock soldier");
                     let commands_from_thread =
                         commands_clone.lock().expect("Could not lock commands");
                     info!("Sending orders..");
-                    Commander::send_information(&mut tcp_stream, commands_from_thread.clone())
+                    Soldier::send_information(&mut tcp_stream, commands_from_thread.clone())
                         .unwrap();
                     info!("Recieving reports...");
-                    let reports = Commander::receive_information(&mut tcp_stream).unwrap();
+                    let reports = Soldier::receive_information(&mut tcp_stream).unwrap();
                     info!("Sending reports through the channel...");
                     commander_channel_send.send(reports).unwrap();
                     info!("Desconnecting from a client..");

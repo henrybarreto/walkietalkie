@@ -8,3 +8,4 @@ pub mod communication;
 pub mod radio;
 pub mod reporter;
 pub mod soldier;
+mod thread_pool;

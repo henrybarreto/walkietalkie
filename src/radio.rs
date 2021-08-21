@@ -7,7 +7,7 @@ use std::{
 
 use crate::communication::Communication;
 use serde::{de::DeserializeOwned, Serialize};
-/// Represents methods what works for the network communication between the commander and soldier
+/// Represents methods what works for the network communication between the soldier and commander
 pub trait Radio<'a, R, S>
 where
     R: Communication + DeserializeOwned + 'a,

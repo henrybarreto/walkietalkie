@@ -2,8 +2,8 @@ use std::error::Error;
 
 use log::error;
 
-use crate::commander::command::Command;
 use crate::reporter::report::Report;
+use crate::commander::command::Command;
 
 /**
     Trait with methods to work on the conversion between bytes and vec to send through tcp
