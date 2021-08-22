@@ -111,7 +111,7 @@ impl Soldier {
         }
     }
 
-    /// Return a formated channel()
+    /// Return a formatted channel()
     pub fn channel() -> (Sender<Vec<Report>>, Receiver<Vec<Report>>) {
         channel()
     }
