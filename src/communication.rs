@@ -5,10 +5,6 @@ use log::error;
 use crate::report::Report;
 use crate::commander::command::Command;
 
-/**
-    Trait with methods to work on the conversion between bytes and vec to send through tcp
-    connection
-*/
 pub trait Communication {
     fn from_bytes(bytes: Vec<u8>) -> Result<Self, Box<dyn Error>>
     where

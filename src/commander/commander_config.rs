@@ -1,7 +1,7 @@
 use crate::commander::command::Command;
 use serde::Deserialize;
 
-/// Represents the configuration archive structure for the client
+/// Represents the configuration file for commander
 #[derive(Deserialize, Clone, Debug)]
 pub struct CommanderConfig {
     pub name: String,

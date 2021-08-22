@@ -11,19 +11,17 @@ use crate::commander::command::Command;
 use std::process::{Output};
 use crate::report::Report;
 
-/// Represents methods what to open the connection to soldier
+/// Represents methods to listen connection from Commander
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Soldier {
     pub config: SoldierConfig,
 }
 impl Soldier {
-    /// Define the configuration to the server
+    /// Create a new Soldier
     pub fn new(config: SoldierConfig) -> Self {
         Soldier { config }
     }
     /**
-       Loading a configuration file called "commander.ron" containing a representation of CommanderConfig.
-
        It's panic if the file could not be open, if the file does not exists, if the content was
        not a SoldierConfig structure or it could not be deserialized.
     */
@@ -45,6 +43,7 @@ impl Soldier {
             }
         }
     }
+    /// Loading a configuration file called "soldier.ron" containing a SoldierConfig.
     pub fn config() -> SoldierConfig {
         Self::convert_config_to_struct(Self::load_config_file("soldier.ron".to_string()))
     }
@@ -71,7 +70,7 @@ impl Soldier {
         }
     }
 
-    /// Run a command and return a Report with the command output or a empty Report if command fail.
+    /// Run all commands and return a list of Report with the Command output or a empty Report if command fail.
     pub fn run_commands(&self, commands: Vec<Command>) -> Vec<Report> {
         info!("Running commands");
         let reports: Vec<Report> = commands
@@ -93,18 +92,18 @@ impl Soldier {
             .collect();
         reports
     }
-
+    /// Send a list of Report to Commander
     pub fn send_reports(tcp_connection: &mut TcpStream, reports: Vec<Report>) -> Result<bool, Box<dyn Error>> {
         info!("Sending reports to commander...");
         Soldier::send_information(tcp_connection, reports)
     }
-
+    /// Receive a list of Commander
     pub fn recv_commands(tcp_connection: &mut TcpStream) -> Result<Vec<Command>, Box<dyn Error>> {
         info!("Receiving commands from commander...");
         Soldier::receive_information(tcp_connection)
     }
 
-    /// Listen for a tcp connection
+    /// Listen a TcpStream
     pub fn listen(&self) -> Result<TcpListener, impl Error> {
         match TcpListener::bind(self.config.addr.clone()) {
             Ok(listener) => Ok(listener),
@@ -112,11 +111,12 @@ impl Soldier {
         }
     }
 
+    /// Return a formated channel()
     pub fn channel() -> (Sender<Vec<Report>>, Receiver<Vec<Report>>) {
         channel()
     }
 
-    /// Disconnect a tcp connection
+    /// Disconnect a TcpStream
     pub fn disconnect(tcp_stream: &TcpStream) {
         tcp_stream.shutdown(Shutdown::Both).unwrap();
     }

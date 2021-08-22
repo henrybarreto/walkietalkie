@@ -7,7 +7,7 @@ use std::{
 
 use crate::communication::Communication;
 use serde::{de::DeserializeOwned, Serialize};
-/// Represents methods what works for the network communication between the soldier and commander
+/// Represents methods to work with network communication between the Soldier and Commander
 pub trait Radio<'a, R, S>
 where
     R: Communication + DeserializeOwned + 'a,
@@ -24,12 +24,12 @@ where
         }
     }
 
-    /// Send information from a tcp connection
+    /// Send information to a TcpStream
     fn send_information(
-        tcp_stream: &TcpStream,
+        tcp_connection: &TcpStream,
         data: Vec<S>,
     ) -> Result<bool, Box<dyn Error>> {
-        let tcp_stream_ref: Rc<TcpStream> = Rc::new(tcp_stream.try_clone()?);
+        let tcp_stream_ref: Rc<TcpStream> = Rc::new(tcp_connection.try_clone()?);
 
         let informations_bytes = S::from_vec_to_bytes(data)?;
 
@@ -45,9 +45,9 @@ where
         Ok(true)
     }
 
-    /// Receive information from a tcp connection
-    fn receive_information(tcp_stream: &TcpStream) -> Result<Vec<R>, Box<dyn Error>> {
-        let tcp_stream_ref: Rc<TcpStream> = Rc::new(tcp_stream.try_clone()?);
+    /// Receive information from a TcpStream 
+    fn receive_information(tcp_connection: &TcpStream) -> Result<Vec<R>, Box<dyn Error>> {
+        let tcp_stream_ref: Rc<TcpStream> = Rc::new(tcp_connection.try_clone()?);
 
         let information_size: usize =
             bincode::deserialize(&Self::recv_data(512, tcp_stream_ref.try_clone()?)?)?;
@@ -62,8 +62,8 @@ where
         Ok(commands)
     }
 
-    /// Disconnect a tcp connection
-    fn disconnect(tcp_stream: &TcpStream) {
-        tcp_stream.shutdown(Shutdown::Both).unwrap()
+    /// Disconnect from a TcpStream
+    fn disconnect(tcp_connection: &TcpStream) {
+        tcp_connection.shutdown(Shutdown::Both).unwrap()
     }
 }
