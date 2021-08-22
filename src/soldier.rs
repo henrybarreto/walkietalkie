@@ -1,25 +1,18 @@
 pub mod soldier_config;
 
-use std::{
-    error::Error,
-    fs::File,
-    net::{Shutdown, TcpListener, TcpStream},
-    path::Path,
-    sync::mpsc::{channel, Receiver, Sender},
-};
+use std::{error::Error, fs::File, net::{Shutdown, TcpListener, TcpStream}, os::unix::prelude::ExitStatusExt, path::Path, process::{ExitStatus}, sync::mpsc::{channel, Receiver, Sender}};
+use serde::{Deserialize, Serialize};
 use log::info;
 
 use crate::radio::Radio;
-use crate::reporter::report::Report;
 use soldier_config::SoldierConfig;
 
 use crate::commander::command::Command;
 use std::process::{Output};
-use crate::reporter::Reporter;
 use crate::report::Report;
 
 /// Represents methods what to open the connection to soldier
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Soldier {
     pub config: SoldierConfig,
 }
@@ -63,7 +56,7 @@ impl Soldier {
         {
             Ok(output_from_command) => Ok(output_from_command),
             Err(error) => {
-                err!("Could not execute a command");
+                info!("Could not execute a command");
                 Err(error)
             }
         }
@@ -78,26 +71,37 @@ impl Soldier {
         }
     }
 
-    /// Run a command and return a Report with the result.
-    pub fn run_commands(&self, commands: Vec<Command>) -> Result<Vec<Report>, impl Error> {
+    /// Run a command and return a Report with the command output or a empty Report if command fail.
+    pub fn run_commands(&self, commands: Vec<Command>) -> Vec<Report> {
         info!("Running commands");
         let reports: Vec<Report> = commands
             .into_iter()
             .map(|command| {
-                info!("Trying to executing the commands");
-                let output = Self::run_command(command.clone())?;
+                info!("Trying to executing a command");
+                let output = match Self::run_command(command.clone()) {
+                    Ok(output) => output,
+                    Err(_) => {
+                                    Output {
+                                        status: ExitStatus::from_raw(1),
+                                        stdout: vec![],
+                                        stderr: vec![],
+                                    }
+                                }
+                };
                 self.create_report_from_output(output)
             })
             .collect();
-        Ok(reports)
+        reports
     }
-    pub fn send_reports(tcp_connection: &mut TcpStream, informations: Vec<Report>) -> Result<bool, Box<dyn Error>> {
+
+    pub fn send_reports(tcp_connection: &mut TcpStream, reports: Vec<Report>) -> Result<bool, Box<dyn Error>> {
         info!("Sending reports to commander...");
-        Soldier::send_information(tcp_connection, commands_output)
+        Soldier::send_information(tcp_connection, reports)
     }
-    pub fn recv_commands(tcp_stream: &TcpStream) -> Result<Vec<Command>, Box<dyn Error>> {
+
+    pub fn recv_commands(tcp_connection: &mut TcpStream) -> Result<Vec<Command>, Box<dyn Error>> {
         info!("Receiving commands from commander...");
-        Soldier::receive_information(&mut tcp_connection)
+        Soldier::receive_information(tcp_connection)
     }
 
     /// Listen for a tcp connection
@@ -107,6 +111,7 @@ impl Soldier {
             Err(error) => Err(error),
         }
     }
+
     pub fn channel() -> (Sender<Vec<Report>>, Receiver<Vec<Report>>) {
         channel()
     }

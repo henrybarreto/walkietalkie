@@ -1,6 +1,6 @@
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 /// Represents the configuration archive structure for the server
-#[derive(Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SoldierConfig {
     pub name: String,
     pub addr: String,

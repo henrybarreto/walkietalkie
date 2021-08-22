@@ -5,6 +5,6 @@ use serde::Deserialize;
 #[derive(Deserialize, Clone, Debug)]
 pub struct CommanderConfig {
     pub name: String,
-    pub addr: String,
+    pub addrs: Vec<String>,
     pub commands: Vec<Command>,
 }

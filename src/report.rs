@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use crate::soldier::Soldier;
+use crate::{soldier::Soldier};
 
 /// Represent a response from a executed command
 #[derive(Serialize, Deserialize, Clone, Debug)]

@@ -1,11 +1,10 @@
 
+use std::error::Error;
 use std::{fs::File, path::Path};
 
-
-
 use commander_config::CommanderConfig;
+use log::info;
 use std::net::{TcpStream, Shutdown};
-use crate::reporter::report::Report;
 use crate::commander::command::Command;
 use crate::radio::Radio;
 use crate::report::Report;
@@ -59,10 +58,19 @@ impl Commander {
         tcp_stream
     }
 
+    pub fn send_commands(tcp_connection: &mut TcpStream, commands: Vec<Command>) -> Result<bool, Box<dyn Error>> {
+        info!("Sending commands to soldier");
+        Self::send_information(tcp_connection, commands)
+    }
+    pub fn recv_reports(tcp_connection: &mut TcpStream) -> Result<Vec<Report>, Box<dyn Error>> {
+        info!("Trying receiving report from soldier");
+        Self::receive_information(tcp_connection)
+    }
+
     /// Disconnect a tcp connection
     pub fn disconnect(tcp_stream: &TcpStream) {
         info!("Disconnecting from the stream");
         tcp_stream.shutdown(Shutdown::Both).unwrap()
     }
 }
-impl Radio<'static, Command, Report> for Commander {}
+impl Radio<'static, Report, Command> for Commander {}
