@@ -4,12 +4,11 @@ use std::{fs::File, path::Path};
 
 
 use commander_config::CommanderConfig;
-
-
-
-
-
-
+use std::net::{TcpStream, Shutdown};
+use crate::reporter::report::Report;
+use crate::commander::command::Command;
+use crate::radio::Radio;
+use crate::report::Report;
 
 
 pub mod command;
@@ -47,4 +46,23 @@ impl Commander {
     pub fn config() -> CommanderConfig {
         Self::convert_config_to_struct(Self::load_config_file("commander.ron".to_string()))
     }
+
+    pub fn connect(addr: String) -> TcpStream {
+        info!("Trying to connect to the soldier {}", &addr);
+        let tcp_stream = if let Ok(tcp_stream) = TcpStream::connect(addr) {
+            tcp_stream
+        } else {
+            panic!("Could not connect with the soldier");
+        };
+
+        info!("Connected to the server");
+        tcp_stream
+    }
+
+    /// Disconnect a tcp connection
+    pub fn disconnect(tcp_stream: &TcpStream) {
+        info!("Disconnecting from the stream");
+        tcp_stream.shutdown(Shutdown::Both).unwrap()
+    }
 }
+impl Radio<'static, Command, Report> for Commander {}

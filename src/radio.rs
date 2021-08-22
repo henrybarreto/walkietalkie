@@ -27,11 +27,11 @@ where
     /// Send information from a tcp connection
     fn send_information(
         tcp_stream: &TcpStream,
-        informations: Vec<S>,
-    ) -> Result<(), Box<dyn Error>> {
+        data: Vec<S>,
+    ) -> Result<bool, Box<dyn Error>> {
         let tcp_stream_ref: Rc<TcpStream> = Rc::new(tcp_stream.try_clone()?);
 
-        let informations_bytes = S::from_vec_to_bytes(informations)?;
+        let informations_bytes = S::from_vec_to_bytes(data)?;
 
         Self::send_data(
             &bincode::serialize(&informations_bytes.len())?,
@@ -42,7 +42,7 @@ where
 
         Self::send_data(&informations_bytes, tcp_stream_ref.try_clone()?)?;
 
-        Ok(())
+        Ok(true)
     }
 
     /// Receive information from a tcp connection

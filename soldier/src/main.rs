@@ -5,8 +5,9 @@ use log::info;
 
 use walkietalkie::commander::Commander;
 use walkietalkie::radio::Radio;
-use walkietalkie::reporter::Reporter;
+use walkietalkie::report::Report;
 use walkietalkie::soldier::Soldier;
+use walkietalkie::commander::command::Command;
 
 fn main() {
     info!("Init Soldier daemon...");
@@ -32,18 +33,15 @@ fn main() {
             for connection in connections.incoming() {
                 match connection {
                     Ok(mut tcp_connection) => {
-                        let commands_received =
-                            Reporter::receive_information(&mut tcp_connection).unwrap();
-                        let commands_output = Soldier::run_commands(commands_received);
-                        let _bytes_sent =
-                            Reporter::send_information(&mut tcp_connection, commands_output)
-                                .unwrap();
-                        Reporter::disconnect(&tcp_connection);
+                        let commands_received: Vec<Command> = Soldier::recv_commands(&mut tcp_connection).unwrap();
+                        let commands_output: Vec<Report> = soldier.run_commands(commands_received).unwrap();
+                        let _bytes_sent = Soldier::send_reports(&mut tcp_connection, commands_output);
+                        Soldier::disconnect(&tcp_connection);
                     }
                     Err(error) => panic!(error),
                 }
             }
         },
-        Err(e) => panic!(e),
+        Err(error) => panic!(error),
     }
 }
