@@ -12,6 +12,12 @@ Basically, it was intent to be a client (soldier) and server (commander) applica
 
 It can be util when you have many devices and just want to execute a few command to each one, instead of open a SSH connection, execute a and exit.
 
+### Soldier
+Soldier is the walkietalkie's server, so it needs to be installed in the device what will execute the commands.  
+
+### Commander 
+Commander is the wakietalkie's client, therefore it sends the commands to be executed in the Soldier (Server) side and deal with output.
+
 ## How it works?
 
 ### The Commander:
