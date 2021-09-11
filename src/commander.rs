@@ -3,7 +3,7 @@ use std::error::Error;
 use std::{fs::File, path::Path};
 
 use commander_config::CommanderConfig;
-use log::info;
+use log::{debug, info};
 use std::net::{TcpStream, Shutdown};
 use crate::commander::command::Command;
 use crate::radio::Radio;
@@ -43,9 +43,9 @@ impl Commander {
     pub fn config() -> CommanderConfig {
         Self::convert_config_to_struct(Self::load_config_file("commander.ron".to_string()))
     }
-    /// Connecting to a Soldier addr
+    /// Connecting to a Soldier to a IP address
     pub fn connect(addr: String) -> TcpStream {
-        info!("Trying to connect to the soldier {}", &addr);
+        debug!("Trying to connect to the soldier {}", &addr);
         let tcp_stream = if let Ok(tcp_stream) = TcpStream::connect(addr) {
             tcp_stream
         } else {
@@ -57,18 +57,18 @@ impl Commander {
     }
     /// Sending a list of Command to Soldier
     pub fn send_commands(tcp_connection: &mut TcpStream, commands: Vec<Command>) -> Result<bool, Box<dyn Error>> {
-        info!("Sending commands to soldier");
+        debug!("Sending commands to soldier");
         Self::send_information(tcp_connection, commands)
     }
-    /// Receving a list of Report from Soldier
+    /// Receiving a list of Report from Soldier
     pub fn recv_reports(tcp_connection: &mut TcpStream) -> Result<Vec<Report>, Box<dyn Error>> {
-        info!("Trying receiving report from soldier");
+        debug!("Trying receiving report from soldier");
         Self::receive_information(tcp_connection)
     }
 
     /// Disconnect from a TcpStream
     pub fn disconnect(tcp_connection: &TcpStream) {
-        info!("Disconnecting from the stream");
+        debug!("Disconnecting from the stream");
         tcp_connection.shutdown(Shutdown::Both).unwrap()
     }
 }

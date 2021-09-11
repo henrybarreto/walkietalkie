@@ -13,6 +13,12 @@ where
     R: Communication + DeserializeOwned + 'a,
     S: Communication + Serialize,
 {
+    //! This Trait works, but has some issues. One from this issues are the way it communicate.
+    //! Currently, It send ALL bytes at oce, what could be problematic for huge responses.
+    //! I think that a good solution would be split the response into chucks and send one by one
+    //! util all be sent.
+    //! For that, a better and more professional protocol needs to be implemented, what I'll do as
+    //! soon as possible, but, for now, it is enough for small amount of data.
     fn send_data(buffer: &[u8], mut tcp_stream: TcpStream) -> Result<usize, std::io::Error> {
         tcp_stream.write(&buffer)
     }
