@@ -1,10 +1,10 @@
 [package]
 name = "walkietalkie"
-description = "walkietalkie is a couple of applications to **send**, **receive** and **execute** commands to linux device."
+description = "Devices mass commander"
 keywords = ["linux", "connection", "command"]
 version = "0.1.0"
 authors = ["Henry Barreto <contato@henrybarreto.dev>"]
-edition = "2018"
+edition = "2021"
 
 [workspace]
 members = ["soldier", "commander"]
