@@ -6,9 +6,9 @@
 ## What is "walkietalkie"?
 *UNDER DEVELOPMENT*
 
-"Walkietalkie" is a couple of applications to **send**, **receive** and **execute** commands in linux device.
+"Walkietalkie" is a couple of applications to **send**, **receive** and **execute** commands in linux's device".
 
-Basically, it was intent to be a client (soldier) and server (commander) application, which the server send a list of single commands, the client execute each one and return the output.
+Basically, it was intent to be a client (commander) and server (soldier) application, which the client sends a list of single commands, the server executes each one and return the output.
 
 It can be util when you have many devices and just want to execute a few command to each one, instead of open a SSH connection, execute a and exit.
 
