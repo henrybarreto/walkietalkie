@@ -5,8 +5,8 @@ use std::{
     rc::Rc,
 };
 
-use log::debug;
 use crate::communication::Communication;
+use log::debug;
 use serde::{de::DeserializeOwned, Serialize};
 /// Represents methods to work with network communication between the Soldier and Commander
 pub trait Radio {

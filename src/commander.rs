@@ -1,19 +1,17 @@
-
 use std::error::Error;
 use std::{fs::File, path::Path};
 
-use commander_config::CommanderConfig;
-use log::{debug, info};
-use std::net::{TcpStream, Shutdown};
 use crate::commander::command::Command;
 use crate::radio::Radio;
 use crate::report::Report;
-
+use commander_config::CommanderConfig;
+use log::{debug, info};
+use std::net::{Shutdown, TcpStream};
 
 pub mod command;
 pub mod commander_config;
 
-/// Represents methods to open a connection to Soldier 
+/// Represents methods to open a connection to Soldier
 pub struct Commander;
 
 impl Commander {
@@ -56,14 +54,18 @@ impl Commander {
         tcp_stream
     }
     /// Sending a list of Command to Soldier
-    pub fn send_commands(tcp_connection: &mut TcpStream, commands: Vec<Command>) -> Result<bool, Box<dyn Error>> {
+    pub fn send_commands(
+        tcp_connection: &mut TcpStream,
+        commands: Vec<Command>,
+    ) -> Result<bool, Box<dyn Error>> {
         debug!("Sending commands to soldier");
-        Self::send_information(tcp_connection, commands)
+        Self::send_chucked(tcp_connection, bincode::serialize(&commands)?)
     }
     /// Receiving a list of Report from Soldier
     pub fn recv_reports(tcp_connection: &mut TcpStream) -> Result<Vec<Report>, Box<dyn Error>> {
         debug!("Trying receiving report from soldier");
-        Self::receive_information(tcp_connection)
+        let reports: Vec<Report> = bincode::deserialize(&Self::receive_chucked(tcp_connection)?)?;
+        Ok(reports)
     }
 
     /// Disconnect from a TcpStream
@@ -72,4 +74,4 @@ impl Commander {
         tcp_connection.shutdown(Shutdown::Both).unwrap()
     }
 }
-impl Radio<'static, Report, Command> for Commander {}
+impl Radio for Commander {}

@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
-/// Represents the configuration file for soldier 
+use serde::{Deserialize, Serialize};
+/// Represents the configuration file for soldier
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SoldierConfig {
     pub name: String,

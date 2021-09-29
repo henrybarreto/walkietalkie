@@ -17,10 +17,9 @@ fn main() {
         info!("Trying receive reports");
         let reports = Commander::recv_reports(&mut connection)
             .expect("Could not receive reports from soldier");
-        
+
         info!("{:#?}", reports);
         info!("Disconnecting from soldier");
         Commander::disconnect(&mut connection)
-    };
-
+    }
 }

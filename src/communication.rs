@@ -2,8 +2,8 @@ use std::error::Error;
 
 use log::error;
 
-use crate::report::Report;
 use crate::commander::command::Command;
+use crate::report::Report;
 
 pub trait Communication {
     fn from_bytes(bytes: Vec<u8>) -> Result<Self, Box<dyn Error>>
