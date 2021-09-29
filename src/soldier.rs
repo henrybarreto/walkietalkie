@@ -1,15 +1,23 @@
 pub mod soldier_config;
 
-use std::{error::Error, fs::File, net::{Shutdown, TcpListener, TcpStream}, os::unix::prelude::ExitStatusExt, path::Path, process::{ExitStatus}, sync::mpsc::{channel, Receiver, Sender}};
-use serde::{Deserialize, Serialize};
 use log::info;
+use serde::{Deserialize, Serialize};
+use std::{
+    error::Error,
+    fs::File,
+    net::{Shutdown, TcpListener, TcpStream},
+    os::unix::prelude::ExitStatusExt,
+    path::Path,
+    process::ExitStatus,
+    sync::mpsc::{channel, Receiver, Sender},
+};
 
 use crate::radio::Radio;
 use soldier_config::SoldierConfig;
 
 use crate::commander::command::Command;
-use std::process::{Output};
 use crate::report::Report;
+use std::process::Output;
 
 /// Represents methods to listen connection from Commander
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -79,13 +87,11 @@ impl Soldier {
                 info!("Trying to executing a command");
                 let output = match Self::run_command(command.clone()) {
                     Ok(output) => output,
-                    Err(_) => {
-                                    Output {
-                                        status: ExitStatus::from_raw(1),
-                                        stdout: vec![],
-                                        stderr: vec![],
-                                    }
-                                }
+                    Err(_) => Output {
+                        status: ExitStatus::from_raw(1),
+                        stdout: vec![],
+                        stderr: vec![],
+                    },
                 };
                 self.create_report_from_output(output)
             })
@@ -93,14 +99,19 @@ impl Soldier {
         reports
     }
     /// Send a list of Report to Commander
-    pub fn send_reports(tcp_connection: &mut TcpStream, reports: Vec<Report>) -> Result<bool, Box<dyn Error>> {
+    pub fn send_reports(
+        tcp_connection: &mut TcpStream,
+        reports: Vec<Report>,
+    ) -> Result<bool, Box<dyn Error>> {
         info!("Sending reports to commander...");
-        Soldier::send_information(tcp_connection, reports)
+        Soldier::send_chucked(tcp_connection, bincode::serialize(&reports)?)
     }
     /// Receive a list of Commander
     pub fn recv_commands(tcp_connection: &mut TcpStream) -> Result<Vec<Command>, Box<dyn Error>> {
         info!("Receiving commands from commander...");
-        Soldier::receive_information(tcp_connection)
+        let commands: Vec<Command> =
+            bincode::deserialize(&Soldier::receive_chucked(tcp_connection)?)?;
+        Ok(commands)
     }
 
     /// Listen a TcpStream
@@ -122,4 +133,4 @@ impl Soldier {
     }
 }
 
-impl Radio<'static, Command, Report> for Soldier {}
+impl Radio for Soldier {}
