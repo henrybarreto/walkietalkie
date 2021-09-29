@@ -5,67 +5,59 @@ use std::{
     rc::Rc,
 };
 
+use log::debug;
 use crate::communication::Communication;
 use serde::{de::DeserializeOwned, Serialize};
 /// Represents methods to work with network communication between the Soldier and Commander
-pub trait Radio<'a, R, S>
-where
-    R: Communication + DeserializeOwned + 'a,
-    S: Communication + Serialize,
-{
-    //! This Trait works, but has some issues. One from this issues are the way it communicate.
-    //! Currently, It send ALL bytes at oce, what could be problematic for huge responses.
-    //! I think that a good solution would be split the response into chucks and send one by one
-    //! util all be sent.
-    //! For that, a better and more professional protocol needs to be implemented, what I'll do as
-    //! soon as possible, but, for now, it is enough for small amount of data.
-    fn send_data(buffer: &[u8], mut tcp_stream: TcpStream) -> Result<usize, std::io::Error> {
+pub trait Radio {
+    fn send_bytes(buffer: &[u8], mut tcp_stream: TcpStream) -> Result<usize, std::io::Error> {
         tcp_stream.write(&buffer)
     }
-    fn recv_data(size: usize, mut tcp_stream: TcpStream) -> Result<Vec<u8>, std::io::Error> {
+    fn receive_bytes(size: usize, mut tcp_stream: TcpStream) -> Result<Vec<u8>, std::io::Error> {
         let mut buffer = vec![0; size];
-        match tcp_stream.read(&mut buffer) {
-            Ok(_) => Ok(buffer),
-            Err(e) => Err(e),
-        }
+        tcp_stream.read(&mut buffer).map(|_| Ok(buffer))?
     }
 
-    /// Send information to a TcpStream
-    fn send_information(
-        tcp_connection: &TcpStream,
-        data: Vec<S>,
-    ) -> Result<bool, Box<dyn Error>> {
-        let tcp_stream_ref: Rc<TcpStream> = Rc::new(tcp_connection.try_clone()?);
+    fn send_chucked(tcp_connection: &TcpStream, data: Vec<u8>) -> Result<bool, Box<dyn Error>> {
+        let tcp_connection_ref: Rc<TcpStream> = Rc::new(tcp_connection.try_clone()?);
 
-        let informations_bytes = S::from_vec_to_bytes(data)?;
+        let (chunks, remained) = data.as_chunks::<128>();
+        for chunk in chunks {
+            Self::send_bytes(chunk, tcp_connection_ref.try_clone()?)?;
+            let okay = Self::receive_bytes(1, tcp_connection_ref.try_clone()?)?;
+            if okay != [1] {
+                panic!("A response was not okay as expected because of a chuck bytes");
+            }
+        }
+        Self::send_bytes(remained, tcp_connection_ref.try_clone()?)?;
+        let okay = Self::receive_bytes(1, tcp_connection_ref.try_clone()?)?;
+        if okay != [1] {
+            panic!("A response was not okay as expected because of remained bytes");
+        }
 
-        Self::send_data(
-            &bincode::serialize(&informations_bytes.len())?,
-            tcp_stream_ref.try_clone()?,
-        )?;
-
-        let _is_okay = Self::recv_data(1, tcp_stream_ref.try_clone()?)?; //[0] [1]
-
-        Self::send_data(&informations_bytes, tcp_stream_ref.try_clone()?)?;
+        Self::send_bytes(&bincode::serialize(&-1)?, tcp_connection_ref.try_clone()?)?;
+        let okay = Self::receive_bytes(1, tcp_connection_ref.try_clone()?)?;
+        if okay != [1] {
+            panic!("A response was not okay as expected because of end of file byte");
+        }
 
         Ok(true)
     }
 
-    /// Receive information from a TcpStream 
-    fn receive_information(tcp_connection: &TcpStream) -> Result<Vec<R>, Box<dyn Error>> {
-        let tcp_stream_ref: Rc<TcpStream> = Rc::new(tcp_connection.try_clone()?);
+    fn receive_chucked(tcp_connection: &TcpStream) -> Result<Vec<u8>, Box<dyn Error>> {
+        let tcp_connection_ref: Rc<TcpStream> = Rc::new(tcp_connection.try_clone()?);
 
-        let information_size: usize =
-            bincode::deserialize(&Self::recv_data(512, tcp_stream_ref.try_clone()?)?)?;
-
-        Self::send_data(&[1], tcp_stream_ref.try_clone()?)?;
-
-        let commands = bincode::deserialize::<Vec<R>>(&Self::recv_data(
-            information_size,
-            tcp_stream_ref.try_clone()?,
-        )?)?;
-
-        Ok(commands)
+        let mut data = vec![];
+        loop {
+            let mut data_received = Self::receive_bytes(128, tcp_connection_ref.try_clone()?)?;
+            if bincode::deserialize::<i32>(&data_received)? == -1 {
+                Self::send_bytes(&[1], tcp_connection_ref.try_clone()?);
+                break;
+            }
+            data.append(&mut data_received);
+            Self::send_bytes(&[1], tcp_connection_ref.try_clone()?);
+        }
+        Ok(data)
     }
 
     /// Disconnect from a TcpStream
