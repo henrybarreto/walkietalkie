@@ -9,4 +9,3 @@ pub mod communication;
 pub mod radio;
 pub mod report;
 pub mod soldier;
-// mod thread_pool;

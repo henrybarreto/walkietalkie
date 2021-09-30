@@ -1,3 +1,4 @@
+use crate::communication::Communication;
 use crate::soldier::Soldier;
 use serde::{Deserialize, Serialize};
 

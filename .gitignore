@@ -1,4 +1,6 @@
 .idea/
 .vscode/
 target/
-./Cargo.lock
+soldier.err
+soldier.out
+soldier.pid

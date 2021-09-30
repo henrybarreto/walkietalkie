@@ -5,8 +5,10 @@ use crate::commander::command::Command;
 use crate::radio::Radio;
 use crate::report::Report;
 use commander_config::CommanderConfig;
-use log::{debug, info};
+use log::{debug, info, trace};
 use std::net::{Shutdown, TcpStream};
+
+use serde::de::StdError;
 
 pub mod command;
 pub mod commander_config;
@@ -15,10 +17,6 @@ pub mod commander_config;
 pub struct Commander;
 
 impl Commander {
-    /**
-    It's panic if the file could not be open, if the file does not exists, if the content was
-    not a CommanderConfig structure or it could not be deserialized.
-     */
     fn load_config_file(path_config_file: String) -> File {
         if let Ok(config_file) = File::open(Path::new(&path_config_file)) {
             config_file
@@ -43,11 +41,11 @@ impl Commander {
     }
     /// Connecting to a Soldier to a IP address
     pub fn connect(addr: String) -> TcpStream {
-        debug!("Trying to connect to the soldier {}", &addr);
+        trace!("Trying to connect to the soldier {}", &addr);
         let tcp_stream = if let Ok(tcp_stream) = TcpStream::connect(addr) {
             tcp_stream
         } else {
-            panic!("Could not connect with the soldier");
+            panic!("Could not connect to the soldier");
         };
 
         info!("Connected to the server");
@@ -57,21 +55,23 @@ impl Commander {
     pub fn send_commands(
         tcp_connection: &mut TcpStream,
         commands: Vec<Command>,
-    ) -> Result<bool, Box<dyn Error>> {
-        debug!("Sending commands to soldier");
+    ) -> Result<bool, Box<dyn std::error::Error>> {
+        trace!("Sending commands to soldier");
         Self::send_chucked(tcp_connection, bincode::serialize(&commands)?)
     }
     /// Receiving a list of Report from Soldier
-    pub fn recv_reports(tcp_connection: &mut TcpStream) -> Result<Vec<Report>, Box<dyn Error>> {
-        debug!("Trying receiving report from soldier");
-        let reports: Vec<Report> = bincode::deserialize(&Self::receive_chucked(tcp_connection)?)?;
-        Ok(reports)
+    pub fn recv_reports(
+        tcp_connection: &mut TcpStream,
+    ) -> Result<Vec<Report>, Box<bincode::ErrorKind>> {
+        trace!("Trying receiving report from soldier");
+        // TODO Here has a problem with question mark...
+        bincode::deserialize::<Vec<Report>>(&Self::receive_chucked(tcp_connection).unwrap())
     }
 
     /// Disconnect from a TcpStream
     pub fn disconnect(tcp_connection: &TcpStream) {
-        debug!("Disconnecting from the stream");
-        tcp_connection.shutdown(Shutdown::Both).unwrap()
+        info!("Disconnecting from the stream");
+        tcp_connection.shutdown(Shutdown::Write).unwrap()
     }
 }
 impl Radio for Commander {}

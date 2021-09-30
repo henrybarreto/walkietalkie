@@ -4,5 +4,4 @@ use serde::{Deserialize, Serialize};
 pub struct SoldierConfig {
     pub name: String,
     pub addr: String,
-    pub interval: u64,
 }
