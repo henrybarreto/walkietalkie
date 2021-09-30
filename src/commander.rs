@@ -18,22 +18,11 @@ pub struct Commander;
 
 impl Commander {
     fn load_config_file(path_config_file: String) -> File {
-        if let Ok(config_file) = File::open(Path::new(&path_config_file)) {
-            config_file
-        } else {
-            panic!("Could not read the commander.ron file");
-        }
+        File::open(Path::new(&path_config_file)).expect("Could not read the commander.ron file")
     }
     fn convert_config_to_struct(config_file: File) -> CommanderConfig {
-        match ron::de::from_reader(config_file) {
-            Ok(soldier_config) => soldier_config,
-            Err(error) => {
-                panic!(
-                    "Could not deserialize the commander.ron file to Config: {}",
-                    error
-                )
-            }
-        }
+        ron::de::from_reader(config_file)
+            .expect("Could not deserialize the commander.ron file to Config: {}")
     }
     /// Loading a configuration file called "commander.ron" containing a CommanderConfig.
     pub fn config() -> CommanderConfig {
@@ -42,14 +31,10 @@ impl Commander {
     /// Connecting to a Soldier to a IP address
     pub fn connect(addr: String) -> TcpStream {
         trace!("Trying to connect to the soldier {}", &addr);
-        let tcp_stream = if let Ok(tcp_stream) = TcpStream::connect(addr) {
-            tcp_stream
-        } else {
-            panic!("Could not connect to the soldier");
-        };
-
+        let tcp_connection = TcpStream::connect(addr).expect("Could not connect to the soldier");
         info!("Connected to the server");
-        tcp_stream
+
+        tcp_connection
     }
     /// Sending a list of Command to Soldier
     pub fn send_commands(
