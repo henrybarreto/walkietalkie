@@ -111,6 +111,7 @@ dependencies = [
 name = "commander"
 version = "0.1.0"
 dependencies = [
+ "bincode",
  "clap",
  "log",
  "simple_logger",

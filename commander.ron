@@ -14,9 +14,9 @@ CommanderConfig(
                 "Hello, world!"
             ]),
         Command (
-            name: "echo",
+            name: "curl",
             args: [
-                "Hello, world!"
+		"www.google.com"
             ])
     ]
 )
