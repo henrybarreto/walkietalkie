@@ -9,6 +9,7 @@ use log::{debug, info, trace};
 use std::net::{Shutdown, TcpStream};
 
 use serde::de::StdError;
+use std::io::Read;
 
 pub mod command;
 pub mod commander_config;
@@ -50,7 +51,10 @@ impl Commander {
     ) -> Result<Vec<Report>, Box<bincode::ErrorKind>> {
         trace!("Trying receiving report from soldier");
         // TODO Here has a problem with question mark...
-        bincode::deserialize::<Vec<Report>>(&Self::receive_chucked(tcp_connection).unwrap())
+        let mut file = Self::receive_chucked(tcp_connection).unwrap();
+        let mut buffer = Vec::new();
+        file.read_to_end(&mut buffer);
+        bincode::deserialize::<Vec<Report>>(&buffer)
     }
 
     /// Disconnect from a TcpStream

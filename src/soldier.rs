@@ -18,6 +18,7 @@ use soldier_config::SoldierConfig;
 use crate::commander::command::Command;
 use crate::report::Report;
 use std::process::Output;
+use std::io::Read;
 
 /// Represents methods to listen connection from Commander
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -91,8 +92,11 @@ impl Soldier {
         tcp_connection: &mut TcpStream,
     ) -> Result<Vec<Command>, Box<dyn std::error::Error>> {
         info!("Receiving commands from commander...");
+        let mut file = Soldier::receive_chucked(tcp_connection)?;
+        let mut buffer = Vec::new();
+        file.read_to_end(&mut buffer);
         let commands: Vec<Command> =
-            bincode::deserialize(&Soldier::receive_chucked(tcp_connection)?)?;
+            bincode::deserialize(&buffer)?;
         Ok(commands)
     }
 
