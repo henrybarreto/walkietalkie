@@ -1,12 +1,13 @@
-CommanderConfig(
+(
     name: "Cpt. Steven Rogers",
-    addrs: ["127.0.0.1:14114"],
-    commands:
-    [
+    addrs: [
+        "127.0.0.1:14114",
+    ],
+    commands: [
         Command (
             name: "echo",
             args: [
-                "Hello, world!"
+                "Hello, world"
             ]),
         Command (
             name: "echo",
@@ -16,7 +17,7 @@ CommanderConfig(
         Command (
             name: "curl",
             args: [
-		"www.google.com"
+                "www.google.com"
             ])
-    ]
+    ],
 )

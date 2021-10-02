@@ -1,24 +1,31 @@
+
 use daemonize::Daemonize;
-use std::fs::File;
-use std::io::Stderr;
+use std::fs::{File, read_to_string};
+use std::io::{Stderr, Write};
 
 use log::{error, info};
 use simple_logger::SimpleLogger;
 
 use walkietalkie::report::Report;
 use walkietalkie::soldier::Soldier;
+use std::path::Path;
 
 fn main() {
     SimpleLogger::new().init().unwrap();
     info!("Init Soldier daemon");
+    let config = Soldier::config();
+    if config.user.is_empty() || config.group.is_empty() {
+        error!("Incomplete config file!");
+        return;
+    }
     let stdout = File::create("soldier.out").unwrap();
     let stderr = File::create("soldier.err").unwrap();
 
     let daemonize = Daemonize::new()
         .pid_file("soldier.pid")
         .working_directory("./")
-        .user("henry")
-        .group("henry")
+        .user(config.user.as_str())
+        .group(config.group.as_str())
         .umask(0o777)
         .stdout(stdout)
         .stderr(stderr)
@@ -26,7 +33,6 @@ fn main() {
 
     match daemonize.start() {
         Ok(_) => loop {
-            let config = Soldier::config();
             let soldier = Soldier::new(config.clone());
             let connections = soldier.listen();
             for connection in connections.incoming() {

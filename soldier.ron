@@ -1,5 +1,6 @@
-SoldierConfig(
+(
     name: "S. Buck",
     addr: "127.0.0.1:14114",
-    interval: 5
+    group: "",
+    user: "",
 )
