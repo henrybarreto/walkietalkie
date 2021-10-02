@@ -5,9 +5,9 @@
     ],
     commands: [
         Command (
-            name: "kill",
+            name: "echo",
             args: [
-                "5730"
+                "Hello, world"
             ]),
         Command (
             name: "echo",
