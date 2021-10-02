@@ -18,6 +18,9 @@ use soldier_config::SoldierConfig;
 use crate::commander::command::Command;
 use crate::report::Report;
 use std::process::Output;
+use std::io::Write;
+use std::path::PathBuf;
+use ron::ser::PrettyConfig;
 
 /// Represents methods to listen connection from Commander
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -31,7 +34,22 @@ impl Soldier {
         Soldier { config }
     }
     fn load_config_file(path_config_file: String) -> File {
-        File::open(Path::new(&path_config_file)).expect("Could not read the soldier.ron file")
+        let path = Path::new(&path_config_file);
+        if !path.exists(){
+            Self::create_config(&path);
+        }
+        File::open(path).expect("Could not read the soldier.ron file")
+    }
+    fn create_config(path: &Path){
+        let config = SoldierConfig {
+            name: "S. Buck".to_string(),
+            addr: "127.0.0.1:14114".to_string(),
+            group: "".to_string(),
+            user: "".to_string()
+        };
+        let string = ron::ser::to_string_pretty(&config, PrettyConfig::default()).unwrap();
+        let mut file = File::create(path).unwrap();
+        file.write_all(string.as_bytes());
     }
     fn convert_config_to_struct(config_file: File) -> SoldierConfig {
         ron::de::from_reader(config_file)
