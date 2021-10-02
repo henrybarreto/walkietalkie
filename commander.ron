@@ -1,0 +1,23 @@
+(
+    name: "Cpt. Steven Rogers",
+    addrs: [
+        "127.0.0.1:14114",
+    ],
+    commands: [
+        Command (
+            name: "kill",
+            args: [
+                "5730"
+            ]),
+        Command (
+            name: "echo",
+            args: [
+                "Hello, world!"
+            ]),
+        Command (
+            name: "curl",
+            args: [
+                "www.google.com"
+            ])
+    ],
+)
