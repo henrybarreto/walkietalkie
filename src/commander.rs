@@ -9,6 +9,8 @@ use log::{debug, info, trace};
 use std::net::{Shutdown, TcpStream};
 
 use serde::de::StdError;
+use std::io::Write;
+use ron::ser::PrettyConfig;
 
 pub mod command;
 pub mod commander_config;
@@ -18,7 +20,21 @@ pub struct Commander;
 
 impl Commander {
     fn load_config_file(path_config_file: String) -> File {
-        File::open(Path::new(&path_config_file)).expect("Could not read the commander.ron file")
+        let path = Path::new(&path_config_file);
+        if !path.exists() {
+            Self::create_config(&path);
+        }
+        File::open(path).expect("Could not read the commander.ron file")
+    }
+    fn create_config(path: &Path) {
+        let config = CommanderConfig {
+            name: "Cpt. Steven Rogers".to_string(),
+            addrs: vec!["127.0.0.1:14114".to_string()],
+            commands: vec![],
+        };
+        let string = ron::ser::to_string_pretty(&config, PrettyConfig::default()).unwrap();
+        let mut file = File::create(path).unwrap();
+        file.write_all(string.as_bytes());
     }
     fn convert_config_to_struct(config_file: File) -> CommanderConfig {
         ron::de::from_reader(config_file)
@@ -59,4 +75,5 @@ impl Commander {
         tcp_connection.shutdown(Shutdown::Write).unwrap()
     }
 }
+
 impl Radio for Commander {}
