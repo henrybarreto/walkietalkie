@@ -1,12 +1,10 @@
-![fluxo de trabalho de exemplo](https://github.com/henrybarreto/walkietalkie/actions/workflows/rust.yml/badge.svg)
+[![stability-experimental](https://img.shields.io/badge/stability-experimental-orange.svg)](https://github.com/emersion/stability-badges#experimental)
 
 ![walkietalkie logo](./logo.png)
 
 
 ## What is "walkietalkie"?
-*UNDER DEVELOPMENT*
-
-"Walkietalkie" is a couple of applications to **send**, **receive** and **execute** commands in linux's device".
+"Walkietalkie" is a couple of applications to send and run commands in linux's devices".
 
 Basically, it was intent to be a client (commander) and server (soldier) application, which the client sends a list of single commands, the server executes each one and return the output.
 
