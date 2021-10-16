@@ -1,6 +1,10 @@
 (
     name: "S. Buck",
     addr: "127.0.0.1:14114",
-    group: "",
-    user: "",
+    group: "henry",
+    user: "henry",
+    seal: (
+       username: "root",
+       password: "root",
+    )
 )

@@ -1,14 +1,15 @@
 (
     name: "Cpt. Steven Rogers",
-    addrs: [
-        "127.0.0.1:14114",
+    devices: [
+        Device (
+            address: "127.0.0.1:14114",
+            seal: Seal (
+                username: "root",
+                password: "root"
+            )
+        ),
     ],
     commands: [
-        Command (
-            name: "echo",
-            args: [
-                "Hello, world"
-            ]),
         Command (
             name: "echo",
             args: [

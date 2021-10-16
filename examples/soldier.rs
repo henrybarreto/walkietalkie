@@ -1,19 +1,19 @@
-
 use daemonize::Daemonize;
-use std::fs::{File, read_to_string};
-use std::io::{Stderr, Write};
+use std::fs::File;
 
 use log::{error, info};
 use simple_logger::SimpleLogger;
 
 use walkietalkie::report::Report;
+
 use walkietalkie::soldier::Soldier;
-use std::path::Path;
+
+use walkietalkie::config::Config;
 
 fn main() {
     SimpleLogger::new().init().unwrap();
     info!("Init Soldier daemon");
-    let config = Soldier::config();
+    let config = Soldier::config("soldier.ron".to_string());
     if config.user.is_empty() || config.group.is_empty() {
         error!("Incomplete config file!");
         return;
@@ -37,35 +37,40 @@ fn main() {
             let connections = soldier.listen();
             for connection in connections.incoming() {
                 match connection {
-                    Ok(mut tcp_connection) => {
+                    Ok(mut conn) => {
                         info!("Connected with commander!");
+                        info!("Checking authentication information...");
+                        // TODO Fix it
+                        if soldier.config.seal.check_auth(&conn).unwrap() == false {
+                            error!("Could not authenticate");
+                            Soldier::disconnect(&conn);
+                            continue;
+                        }
+                        info!("Authenticated!");
                         info!("Receiving commands");
-                        let commands_received = match Soldier::receive_commands(&mut tcp_connection)
-                        {
+                        let commands_received = match Soldier::receive_commands(&mut conn) {
                             Ok(commands_received) => commands_received,
                             Err(error) => {
                                 error!("Could not receive command from commander: {:?}", error);
-                                break;
+                                continue;
                             }
                         };
 
-                        // .expect("Could not receive command from commander");
-                        info!("Executing commands");
+                        info!("Executing commands...");
                         // If cannot run a command, an empty structure is returned
                         let commands_output: Vec<Report> = soldier.run_commands(commands_received);
-                        info!("Sending reports to commander");
-                        let _bytes_sent =
-                            match Soldier::send_reports(&mut tcp_connection, commands_output) {
-                                Ok(bytes_sent) => bytes_sent,
-                                Err(error) => {
-                                    error!("Could not send the reports to commander: {:?}", error);
-                                    break;
-                                }
-                            };
+                        info!("Sending reports to commander...");
+                        let _bytes_sent = match Soldier::send_reports(&mut conn, commands_output) {
+                            Ok(bytes_sent) => bytes_sent,
+                            Err(error) => {
+                                error!("Could not send the reports to commander: {:?}", error);
+                                continue;
+                            }
+                        };
                         info!("Disconnecting soldier from commander");
-                        Soldier::disconnect(&tcp_connection);
+                        Soldier::disconnect(&conn);
                     }
-                    Err(_) => break,
+                    Err(_) => continue,
                 }
             }
         },

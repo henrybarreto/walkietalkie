@@ -1,4 +1,6 @@
+use crate::seal::Seal;
 use serde::{Deserialize, Serialize};
+
 /// Represents the configuration file for soldier
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SoldierConfig {
@@ -6,4 +8,5 @@ pub struct SoldierConfig {
     pub addr: String,
     pub group: String,
     pub user: String,
+    pub seal: Seal,
 }

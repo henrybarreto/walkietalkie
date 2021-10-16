@@ -6,6 +6,9 @@
 
 pub mod commander;
 pub mod communication;
+pub mod config;
+pub mod devices;
 pub mod radio;
 pub mod report;
+pub mod seal;
 pub mod soldier;
