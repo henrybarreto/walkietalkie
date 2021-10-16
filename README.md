@@ -46,12 +46,12 @@ Configure the "commander.ron" to Commander and "soldier.ron" to Soldier.
 
 ### Run Soldier
 ```bash
-cargo run --examples soldier 
+cargo run --example soldier 
 ```
 
 ### Run Commander
 ```bash
-cargo run --examples commander 
+cargo run --example commander 
 ```
 
 When Soldier is running, it will produce three files: `soldier.err`, `soldier.out` and `soldier.pid`.
