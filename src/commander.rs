@@ -12,7 +12,7 @@ use crate::config::Config;
 use crate::devices::Device;
 use crate::seal::Seal;
 use ron::ser::PrettyConfig;
-use std::io::Write;
+use std::io::{Read, Write};
 
 pub mod command;
 pub mod commander_config;
@@ -39,7 +39,10 @@ impl Commander {
     ) -> Result<Vec<Report>, Box<bincode::ErrorKind>> {
         trace!("Trying receiving report from soldier");
         // TODO Here has a problem with question mark...
-        bincode::deserialize::<Vec<Report>>(&Self::receive_chucked(tcp_connection).unwrap())
+        let mut file = File::open(Self::receive_chucked(tcp_connection).unwrap()).unwrap();
+        let mut buffer = Vec::new();
+        file.read_to_end(&mut buffer);
+        bincode::deserialize::<Vec<Report>>(&buffer)
     }
 
     /// Disconnect from a TcpStream

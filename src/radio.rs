@@ -1,8 +1,11 @@
-use std::{
-    error::Error,
-    io::{Read, Write},
-    net::{Shutdown, TcpStream},
-};
+use std::{env, error::Error, io::{Read, Write}, net::{Shutdown, TcpStream}};
+use std::fs::{create_dir, create_dir_all, File, Permissions, remove_file};
+use std::io::BufWriter;
+use std::path::{Path, PathBuf};
+use rand::distributions::Alphanumeric;
+use rand::Rng;
+use rand::rngs::OsRng;
+use log::trace;
 
 /// Radio has methods to send and receive data
 pub trait Radio {
@@ -19,6 +22,7 @@ pub trait Radio {
     }
 
     fn send_chucked(tcp_connection: &TcpStream, data: Vec<u8>) -> Result<bool, Box<dyn Error>> {
+        println!("Output {}", &data.len());
         let (chunks, remained) = data.as_chunks::<128>();
         for chunk in chunks {
             Self::send_bytes(chunk, &tcp_connection)?;
@@ -43,7 +47,19 @@ pub trait Radio {
         Ok(true)
     }
 
-    fn receive_chucked(tcp_connection: &TcpStream) -> Result<Vec<u8>, Box<dyn Error>> {
+    fn receive_chucked(tcp_connection: &TcpStream) -> Result<PathBuf, Box<dyn Error>> {
+        let x: String = OsRng
+            .sample_iter(&Alphanumeric)
+            .take(5)
+            .map(char::from)
+            .collect();
+
+        let buf = Path::new("save").join(format!("{}.tmp", x));
+        if buf.exists() {
+            remove_file(&buf);
+        }
+        trace!("Tmp File: {}", &buf.as_os_str().to_str().unwrap());
+        let mut file = File::create(&buf)?;
         let mut data = vec![];
         loop {
             let mut data_received = Self::receive_bytes(128, &tcp_connection)?;
@@ -54,8 +70,11 @@ pub trait Radio {
             data.append(&mut data_received);
             Self::send_bytes(&bincode::serialize(&true)?, &tcp_connection);
         }
+        println!("Input {}", &data.len());
 
-        Ok(data)
+        file.write_all(&data);
+        file.flush();
+        Ok(buf)
     }
 
     /// Disconnect from a TcpStream

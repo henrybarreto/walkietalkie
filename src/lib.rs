@@ -3,6 +3,7 @@
 //! This crate provides elements to communication between a server and clients, execute commands and
 //! send responses.
 #![feature(slice_as_chunks)]
+#![feature(with_options)]
 
 pub mod commander;
 pub mod communication;

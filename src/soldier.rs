@@ -18,7 +18,7 @@ use soldier_config::SoldierConfig;
 use crate::commander::command::Command;
 use crate::config::Config;
 use crate::report::Report;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::process::Output;
 
 use crate::seal::Seal;
@@ -57,7 +57,7 @@ impl Soldier {
         commands
             .into_iter()
             .map(|command| {
-                trace!("Trying to executing a command");
+                trace!("Trying to executing a command {}",command.clone());
                 let output = match Self::run_command(command.clone()) {
                     Ok(output) => output,
                     Err(_) => Output {
@@ -83,8 +83,15 @@ impl Soldier {
         tcp_connection: &mut TcpStream,
     ) -> Result<Vec<Command>, Box<dyn std::error::Error>> {
         trace!("Receiving commands from commander...");
+        trace!("Receiving Data");
+        let mut file = File::open(Soldier::receive_chucked(tcp_connection)?).unwrap();
+        let mut buffer = Vec::new();
+        let i = file.read_to_end(&mut buffer)?;
+        println!("File lenth {}",i);
+        trace!("Parsing Data");
+
         let commands: Vec<Command> =
-            bincode::deserialize(&Soldier::receive_chucked(tcp_connection)?)?;
+            bincode::deserialize(&*buffer)?;
         Ok(commands)
     }
 
