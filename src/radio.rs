@@ -1,8 +1,5 @@
-use std::{
-    error::Error,
-    io::{Read, Write},
-    net::{Shutdown, TcpStream},
-};
+use std::{env, error::Error, io::{Read, Write}, net::{Shutdown, TcpStream}};
+use std::fs::{File, remove_file};
 
 /// Radio has methods to send and receive data
 pub trait Radio {
@@ -43,19 +40,23 @@ pub trait Radio {
         Ok(true)
     }
 
-    fn receive_chucked(tcp_connection: &TcpStream) -> Result<Vec<u8>, Box<dyn Error>> {
-        let mut data = vec![];
+    fn receive_chucked(tcp_connection: &TcpStream) -> Result<File, Box<dyn Error>> {
+        let buf = env::temp_dir().join("wt.tmp");
+        if buf.exists(){
+            remove_file(&buf);
+        }
+        let mut file = File::create(buf)?;
         loop {
             let mut data_received = Self::receive_bytes(128, &tcp_connection)?;
             if bincode::deserialize::<i32>(&data_received)? == -1 {
                 Self::send_bytes(&bincode::serialize(&true)?, &tcp_connection);
                 break;
             }
-            data.append(&mut data_received);
+            file.write(&mut data_received);
             Self::send_bytes(&bincode::serialize(&true)?, &tcp_connection);
         }
 
-        Ok(data)
+        Ok(file)
     }
 
     /// Disconnect from a TcpStream
