@@ -1,4 +1,3 @@
-use daemonize::Daemonize;
 use std::fs::{create_dir, File};
 use std::path::Path;
 

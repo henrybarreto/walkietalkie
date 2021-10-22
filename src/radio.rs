@@ -59,7 +59,7 @@ pub trait Radio {
             remove_file(&buf);
         }
         trace!("Tmp File: {}", &buf.as_os_str().to_str().unwrap());
-        let mut file = File::with_options().create(true).truncate(true).read(true).open(&buf)?;
+        let mut file = File::create(&buf)?;
         let mut data = vec![];
         loop {
             let mut data_received = Self::receive_bytes(128, &tcp_connection)?;
