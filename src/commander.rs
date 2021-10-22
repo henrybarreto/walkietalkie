@@ -39,7 +39,7 @@ impl Commander {
     ) -> Result<Vec<Report>, Box<bincode::ErrorKind>> {
         trace!("Trying receiving report from soldier");
         // TODO Here has a problem with question mark...
-        let mut file = Self::receive_chucked(tcp_connection).unwrap();
+        let mut file = File::open(Self::receive_chucked(tcp_connection).unwrap()).unwrap();
         let mut buffer = Vec::new();
         file.read_to_end(&mut buffer);
         bincode::deserialize::<Vec<Report>>(&buffer)

@@ -57,7 +57,7 @@ impl Soldier {
         commands
             .into_iter()
             .map(|command| {
-                trace!("Trying to executing a command");
+                trace!("Trying to executing a command {}",command.clone());
                 let output = match Self::run_command(command.clone()) {
                     Ok(output) => output,
                     Err(_) => Output {
@@ -83,10 +83,13 @@ impl Soldier {
         tcp_connection: &mut TcpStream,
     ) -> Result<Vec<Command>, Box<dyn std::error::Error>> {
         trace!("Receiving commands from commander...");
-
-        let mut file = Soldier::receive_chucked(tcp_connection)?;
+        trace!("Receiving Data");
+        let mut file = File::open(Soldier::receive_chucked(tcp_connection)?).unwrap();
         let mut buffer = Vec::new();
-        file.read_to_end(&mut buffer);
+        let i = file.read_to_end(&mut buffer)?;
+        println!("File lenth {}",i);
+        trace!("Parsing Data");
+
         let commands: Vec<Command> =
             bincode::deserialize(&*buffer)?;
         Ok(commands)

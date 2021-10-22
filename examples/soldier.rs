@@ -1,5 +1,6 @@
 use daemonize::Daemonize;
-use std::fs::File;
+use std::fs::{create_dir, File};
+use std::path::Path;
 
 use log::{error, info};
 use simple_logger::SimpleLogger;
@@ -11,6 +12,10 @@ use walkietalkie::soldier::Soldier;
 use walkietalkie::config::Config;
 
 fn main() {
+    let path = Path::new("save");
+    if !path.exists(){
+        create_dir(path);
+    }
     SimpleLogger::new().init().unwrap();
     info!("Init Soldier daemon");
     let config = Soldier::config("soldier.ron".to_string());
