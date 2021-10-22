@@ -1,10 +1,11 @@
 use crate::commander::command::Command;
-use serde::{Serialize, Deserialize};
+use crate::devices::Device;
+use serde::{Deserialize, Serialize};
 
 /// Represents the configuration file for commander
-#[derive(Serialize,Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct CommanderConfig {
     pub name: String,
-    pub addrs: Vec<String>,
+    pub devices: Vec<Device>,
     pub commands: Vec<Command>,
 }

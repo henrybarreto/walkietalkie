@@ -5,53 +5,25 @@ use crate::commander::command::Command;
 use crate::radio::Radio;
 use crate::report::Report;
 use commander_config::CommanderConfig;
-use log::{debug, info, trace};
+use log::{info, trace};
 use std::net::{Shutdown, TcpStream};
 
-use serde::de::StdError;
-use std::io::Write;
+use crate::config::Config;
+use crate::devices::Device;
+use crate::seal::Seal;
 use ron::ser::PrettyConfig;
-use std::io::Read;
+use std::io::Write;
 
 pub mod command;
 pub mod commander_config;
 
-/// Represents methods to open a connection to Soldier
-pub struct Commander;
+pub struct Commander {}
 
 impl Commander {
-    fn load_config_file(path_config_file: String) -> File {
-        let path = Path::new(&path_config_file);
-        if !path.exists() {
-            Self::create_config(&path);
-        }
-        File::open(path).expect("Could not read the commander.ron file")
-    }
-    fn create_config(path: &Path) {
-        let config = CommanderConfig {
-            name: "Cpt. Steven Rogers".to_string(),
-            addrs: vec!["127.0.0.1:14114".to_string()],
-            commands: vec![],
-        };
-        let string = ron::ser::to_string_pretty(&config, PrettyConfig::default()).unwrap();
-        let mut file = File::create(path).unwrap();
-        file.write_all(string.as_bytes());
-    }
-    fn convert_config_to_struct(config_file: File) -> CommanderConfig {
-        ron::de::from_reader(config_file)
-            .expect("Could not deserialize the commander.ron file to Config: {}")
-    }
-    /// Loading a configuration file called "commander.ron" containing a CommanderConfig.
-    pub fn config() -> CommanderConfig {
-        Self::convert_config_to_struct(Self::load_config_file("commander.ron".to_string()))
-    }
     /// Connecting to a Soldier to a IP address
-    pub fn connect(addr: String) -> TcpStream {
+    pub fn connect(addr: String) -> Result<TcpStream, impl Error> {
         trace!("Trying to connect to the soldier {}", &addr);
-        let tcp_connection = TcpStream::connect(addr).expect("Could not connect to the soldier");
-        info!("Connected to the server");
-
-        tcp_connection
+        TcpStream::connect(addr)
     }
     /// Sending a list of Command to Soldier
     pub fn send_commands(
@@ -67,16 +39,31 @@ impl Commander {
     ) -> Result<Vec<Report>, Box<bincode::ErrorKind>> {
         trace!("Trying receiving report from soldier");
         // TODO Here has a problem with question mark...
-        let mut file = Self::receive_chucked(tcp_connection).unwrap();
-        let mut buffer = Vec::new();
-        file.read_to_end(&mut buffer);
-        bincode::deserialize::<Vec<Report>>(&buffer)
+        bincode::deserialize::<Vec<Report>>(&Self::receive_chucked(tcp_connection).unwrap())
     }
 
     /// Disconnect from a TcpStream
     pub fn disconnect(tcp_connection: &TcpStream) {
         info!("Disconnecting from the stream");
-        tcp_connection.shutdown(Shutdown::Write).unwrap()
+        tcp_connection.shutdown(Shutdown::Both).unwrap()
+    }
+}
+impl Config<CommanderConfig> for Commander {
+    fn generate_config(path: &Path) {
+        let config = CommanderConfig {
+            name: "Cpt. Steven Rogers".to_string(),
+            devices: vec![Device {
+                address: "127.0.0.1:14114".to_string(),
+                seal: Seal {
+                    username: "".to_string(),
+                    password: "".to_string(),
+                },
+            }],
+            commands: vec![],
+        };
+        let string = ron::ser::to_string_pretty(&config, PrettyConfig::default()).unwrap();
+        let mut file = File::create(path).unwrap();
+        file.write_all(string.as_bytes());
     }
 }
 impl Radio for Commander {}

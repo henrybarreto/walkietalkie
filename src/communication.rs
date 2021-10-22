@@ -1,6 +1,3 @@
-use std::error::Error;
-
-use log::error;
 use serde::{Deserialize, Serialize};
 
 pub trait Communication {
