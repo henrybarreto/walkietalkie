@@ -54,7 +54,3 @@ cargo run --example soldier
 cargo run --example commander 
 ```
 
-When Soldier is running, it will produce three files: `soldier.err`, `soldier.out` and `soldier.pid`.
-- `soldier.err` is where you can find the erros occur;
-- `solider.out` is the soldier's default output;
-- `soldier.pid` is the PID of running process.
