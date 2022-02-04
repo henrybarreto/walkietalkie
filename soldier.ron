@@ -1,8 +1,8 @@
 (
     name: "S. Buck",
     addr: "127.0.0.1:14114",
-    group: "wherkamp",
-    user: "wherkamp",
+    group: "root",
+    user: "root",
     seal: (
        username: "root",
        password: "root",
