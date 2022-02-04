@@ -1,0 +1,7 @@
+.idea/
+.vscode/
+target/
+soldier.err
+soldier.out
+soldier.pid
+save
