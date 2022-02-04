@@ -42,6 +42,21 @@ First, clone the repository:
 git clone https://github.com/henrybarreto/walkietalkie
 ```
 
+### Build the image
+```bash
+docker build -t walkietalkie .
+```
+
+### Run the container 
+```bash
+docker run --name walkietalkie -d -it -p 14014:14014 --mount type=bind,source="$(pwd)",target=/root/walkietalkie walkietalkie /bin/bash
+```
+
+### Enter the container
+```bash
+docker exec -it walkietalkie /bin/bash
+```
+
 Configure the "commander.ron" to Commander and "soldier.ron" to Soldier.
 
 ### Run Soldier
