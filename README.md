@@ -1,71 +1,100 @@
-[![stability-experimental](https://img.shields.io/badge/stability-experimental-orange.svg)](https://github.com/emersion/stability-badges#experimental)
+<p align="center">
+    <img src="logo.png" alt="walkietalkie logo" />
+</p>
 
-![walkietalkie logo](./logo.png)
+<p align="center">
+    <img src="https://img.shields.io/badge/stability-experimental-orange.svg" alt="walkietalkie stability" />
+</p>
 
+## What is Walkietalkie?
+Walkietalkie is an application to help system admins to execute simple payloads in many remote devices at once.
 
-## What is "walkietalkie"?
-"Walkietalkie" is a couple of applications to send and run commands in linux's devices".
+It is a composition of a server (soldier) and a client (commander), what the server is set up and configured in the 
+remote device and the client is who want to execute that payload.
 
-Basically, it was intent to be a client (commander) and server (soldier) application, which the client sends a list of single commands, the server executes each one and return the output.
+### Soldier (server)
+The Soldier is the Walkietalkie's server, and it is responsible to receive, execute and return the result from the 
+payload.
 
-It can be useful when you have many devices and just want to execute a few command to each one, instead of open a SSH connection, execute a and exit.
+The Soldier is configured by a file called `soldier.ron`.
+```ron 
+(
+    name: "S. Buck", // It should be unique and it used to indefy the Soldier.
+    addr: "127.0.0.1:14114", // It is the host what the Soldier listen.
+    group: "root", // It is the unix group who will use the Soldier.
+    user: "root", // It is the unix user who will use the Soldier.
+    seal: ( // It defines credentials to acess the Soldier.
+       username: "root",
+       password: "root",
+    )
+)
+```
 
-### Soldier
-Soldier is the walkietalkie's server, so it needs to be installed in the device what will execute the commands.  
+### Commander (client)
+Commander is the Walkietalkie's client, therefore it sends the commands to be executed in the Soldier (Server) and deal
+with output.
 
-### Commander 
-Commander is the wakietalkie's client, therefore it sends the commands to be executed in the Soldier (Server) side and deal with output.
+```ron
+(
+  name: "Cpt. Steven Rogers", // It should be unique and it used to indefy the Commander.
+  devices: [ // List of devices what the commander can connect and execute payloads.
+    Device (
+      address: "127.0.0.1:14114", // Device address.
+      seal: Seal ( // It defines credentials to acess the Soldier.
+        username: "root",
+        password: "root"
+      )
+    ),
+  ],
+    commands: [ // List of commands to be executed in the devices.
+        Command (
+            name: "echo",
+            args: [
+                "Hello, world!"
+            ]),
+        Command (
+            name: "curl",
+            args: [
+                "www.google.com"
+            ])
+    ],
+)
+```
 
-> note: Soldier and Commander is still not implemented, but there are examples inside examples' folder.
+> Note: Soldier and Commander is still not implemented, but there are examples inside examples' folder.
 
 ## How it works?
 
+<p align="center">
+    <img src="diagrams/use-cases.drawio.png" alt="use cases walkietalkie diagram" />
+</p>
+
 ### The Commander:
 
-- Send the commands configured inside "commander.ron" file
+- Send the commands to Soldiers configured in `commander.ron` 
 - Wait for a response
-- Show its in terminal
-  - *This output is actually just for debug*
+- Show the output
 
 ### The Soldier:
-
-- Listening for TCP connections
+- Listening for Commander's connection 
+- Authenticate
 - Require commands
-- Executes it
+- Executes commands
 - Send back the Responses
 - Wait new commands
 
 ## How to use?
 
-First, clone the repository:
-```bash
-git clone https://github.com/henrybarreto/walkietalkie
+> Note: The CLI interface is still not implemented, but there are examples inside examples' folder.
+
+The CLI interface is intend to be as simple as possible.
+
+To start a soldier with the right `soldier.ron` configuration file:
+```sh
+walkietalkie soldier
 ```
 
-### Build the image
-```bash
-docker build -t walkietalkie .
+To send a commands from a Commander to all Soldiers configured in `commander.ron` file:
+```sh
+walkietalkie commander
 ```
-
-### Run the container 
-```bash
-docker run --name walkietalkie -d -it -p 14014:14014 --mount type=bind,source="$(pwd)",target=/root/walkietalkie walkietalkie /bin/bash
-```
-
-### Enter the container
-```bash
-docker exec -it walkietalkie /bin/bash
-```
-
-Configure the "commander.ron" to Commander and "soldier.ron" to Soldier.
-
-### Run Soldier
-```bash
-cargo run --example soldier 
-```
-
-### Run Commander
-```bash
-cargo run --example commander 
-```
-

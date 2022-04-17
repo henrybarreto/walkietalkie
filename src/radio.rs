@@ -7,7 +7,7 @@ use rand::Rng;
 use rand::rngs::OsRng;
 use log::trace;
 
-/// Radio has methods to send and receive data
+/// Radio contains methods to send and receive data through Commander and Soldier.
 pub trait Radio {
     fn send_bytes(buffer: &[u8], mut tcp_stream: &TcpStream) -> Result<usize, std::io::Error> {
         tcp_stream.write(&buffer)

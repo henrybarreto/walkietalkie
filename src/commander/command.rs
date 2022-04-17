@@ -1,10 +1,22 @@
 use std::fmt::{Display, Formatter};
 use serde::{Deserialize, Serialize};
 
-/// Represent a command that will be sent through socket and executed in client side
+/// A Command contains attributes to represent a command from Commander to be executed on Soldier.
+///
+/// # Examples
+/// ```
+/// use walkietalkie::commander::command::Command;
+///
+/// let command = Command {
+///     name: "echo".to_string(),
+///     args: vec!["Hello, world!".to_string()],
+/// };
+/// ```
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Command {
+    /// The command's name.
     pub name: String,
+    /// The command's arguments.
     pub args: Vec<String>,
 }
 impl Display for Command{

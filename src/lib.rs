@@ -1,7 +1,7 @@
 //! # Walkietalkie
 //!
-//! This crate provides elements to communication between a server and clients, execute commands and
-//! send responses.
+//! Walkietalkie is an application to help system admins to execute simple payloads in many remote
+//! devices at once.
 #![feature(slice_as_chunks)]
 #![feature(with_options)]
 

@@ -24,24 +24,27 @@ use std::process::Output;
 use crate::seal::Seal;
 use ron::ser::PrettyConfig;
 
-/// Represents methods to listen connection from Commander
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Soldier {
     pub config: SoldierConfig,
 }
 
 impl Soldier {
-    /// Create a new Soldier
+    /// Creates a new Soldier. That server will receive the Commands from a Commander.
     pub fn new(config: SoldierConfig) -> Self {
         Soldier { config }
     }
 
+    /// Runs the command.
     fn run_command(command: Command) -> Result<Output, impl Error> {
+        // TODO: Add a time limit to command execute.
+        trace!("Running a single command: {}", command.clone());
         std::process::Command::new(command.name)
             .args(command.args)
             .output()
     }
 
+    /// Creates a simple output from the command executed.
     fn create_report_from_output(&self, output_from_command: Output) -> Report {
         Report {
             soldier: self.config.addr.to_string(),
@@ -51,7 +54,8 @@ impl Soldier {
         }
     }
 
-    /// Run all commands and return a list of Report with the Command output or a empty Report if command fail.
+    /// Runs all commands and return a list of Report with the Command output or a empty Report if
+    /// command fail.
     pub fn run_commands(&self, commands: Vec<Command>) -> Vec<Report> {
         trace!("Running all commands");
         commands
@@ -70,7 +74,7 @@ impl Soldier {
             })
             .collect()
     }
-    /// Send a list of Report to Commander
+    /// Sends a list of Report to Commander.
     pub fn send_reports(
         tcp_connection: &mut TcpStream,
         reports: Vec<Report>,
@@ -78,7 +82,7 @@ impl Soldier {
         trace!("Sending reports to commander...");
         Soldier::send_chucked(tcp_connection, bincode::serialize(&reports)?)
     }
-    /// Receive a list of Commander
+    /// Receives a list of Commander.
     pub fn receive_commands(
         tcp_connection: &mut TcpStream,
     ) -> Result<Vec<Command>, Box<dyn std::error::Error>> {
@@ -95,17 +99,17 @@ impl Soldier {
         Ok(commands)
     }
 
-    /// Listen a TcpStream
+    /// Listen set the Soldier to wait to Commander connections.
     pub fn listen(&self) -> TcpListener {
         TcpListener::bind(self.config.addr.clone()).expect("Could not listen to address")
     }
 
-    /// Return a formatted channel()
+    /// Gets a formatted channel()
     pub fn channel() -> (Sender<Vec<Report>>, Receiver<Vec<Report>>) {
         channel()
     }
 
-    /// Disconnect a TcpStream
+    /// Disconnects the Soldier from the Commander.
     pub fn disconnect(tcp_stream: &TcpStream) {
         tcp_stream.shutdown(Shutdown::Both).unwrap();
     }

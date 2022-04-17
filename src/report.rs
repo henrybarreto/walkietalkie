@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-/// Represent a response from a executed Command
+/// Report contains attributes to represent data from an executed Command.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Report {
     pub soldier: String,

@@ -20,12 +20,12 @@ pub mod commander_config;
 pub struct Commander {}
 
 impl Commander {
-    /// Connecting to a Soldier to a IP address
+    /// Connect to a Soldier with the given IP address.
     pub fn connect(addr: String) -> Result<TcpStream, impl Error> {
         trace!("Trying to connect to the soldier {}", &addr);
         TcpStream::connect(addr)
     }
-    /// Sending a list of Command to Soldier
+    /// Send a list of Command to Soldier.
     pub fn send_commands(
         tcp_connection: &mut TcpStream,
         commands: Vec<Command>,
@@ -33,7 +33,7 @@ impl Commander {
         trace!("Sending commands to soldier");
         Self::send_chucked(tcp_connection, bincode::serialize(&commands)?)
     }
-    /// Receiving a list of Report from Soldier
+    /// Receive a list of Report from Soldier.
     pub fn recv_reports(
         tcp_connection: &mut TcpStream,
     ) -> Result<Vec<Report>, Box<bincode::ErrorKind>> {
@@ -45,13 +45,14 @@ impl Commander {
         bincode::deserialize::<Vec<Report>>(&buffer)
     }
 
-    /// Disconnect from a TcpStream
+    /// Disconnect from a Soldier.
     pub fn disconnect(tcp_connection: &TcpStream) {
         info!("Disconnecting from the stream");
         tcp_connection.shutdown(Shutdown::Both).unwrap()
     }
 }
 impl Config<CommanderConfig> for Commander {
+    /// Generate a CommanderConfig file with a default value.
     fn generate_config(path: &Path) {
         let config = CommanderConfig {
             name: "Cpt. Steven Rogers".to_string(),
@@ -62,7 +63,10 @@ impl Config<CommanderConfig> for Commander {
                     password: "".to_string(),
                 },
             }],
-            commands: vec![],
+            commands: vec![Command {
+                name: "".to_string(),
+                args: vec![],
+            }],
         };
         let string = ron::ser::to_string_pretty(&config, PrettyConfig::default()).unwrap();
         let mut file = File::create(path).unwrap();
