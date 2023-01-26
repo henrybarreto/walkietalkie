@@ -1,18 +1,14 @@
-use std::fs::{create_dir, File};
-use std::path::Path;
-
 use log::{error, info};
 use simple_logger::SimpleLogger;
-
-use walkietalkie::report::Report;
-
-use walkietalkie::soldier::Soldier;
-
+use std::fs::create_dir;
+use std::path::Path;
 use walkietalkie::config::Config;
+use walkietalkie::report::Report;
+use walkietalkie::soldier::Soldier;
 
 fn main() {
     let path = Path::new("save");
-    if !path.exists(){
+    if !path.exists() {
         create_dir(path);
     }
     SimpleLogger::new().init().unwrap();

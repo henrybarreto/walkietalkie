@@ -1,17 +1,17 @@
 [package]
 name = "walkietalkie"
-description = "Devices mass commander"
-keywords = ["linux", "connection", "command"]
+description = "Walkietalkie is application to execute defined commands on server"
+keywords = ["linux", "client", "server", "connection", "command",]
 version = "0.1.0"
-authors = ["Henry Barreto <contato@henrybarreto.dev>"]
+authors = ["Henry Barreto <me@henrybarreto.dev>"]
 edition = "2021"
 
 [dependencies]
 serde = { version = "1.0.136", features = ["derive"] }
 bincode = "1.3.1"
-ron = "0.6.4"
+ron = "0.8.0"
 log = "0.4.11"
-simple_logger = "1.11.0"
+simple_logger = "4.0.0"
 rand = "0.8.4"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

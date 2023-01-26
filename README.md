@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="logo.png" alt="walkietalkie logo" />
+    <img src="assets/logo.png" alt="walkietalkie logo" />
 </p>
 
 <p align="center">
@@ -66,7 +66,7 @@ with output.
 ## How it works?
 
 <p align="center">
-    <img src="diagrams/use-cases.drawio.png" alt="use cases walkietalkie diagram" />
+    <img src="assets/diagrams/use-cases.drawio.png" alt="use cases walkietalkie diagram" />
 </p>
 
 ### The Commander:

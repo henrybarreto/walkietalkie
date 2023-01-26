@@ -1,11 +1,15 @@
-use std::{env, error::Error, io::{Read, Write}, net::{Shutdown, TcpStream}};
-use std::fs::{create_dir, create_dir_all, File, Permissions, remove_file};
-use std::io::BufWriter;
-use std::path::{Path, PathBuf};
-use rand::distributions::Alphanumeric;
-use rand::Rng;
-use rand::rngs::OsRng;
 use log::trace;
+use rand::distributions::Alphanumeric;
+use rand::rngs::OsRng;
+use rand::Rng;
+use std::fs::{remove_file, File};
+
+use std::path::{Path, PathBuf};
+use std::{
+    error::Error,
+    io::{Read, Write},
+    net::{Shutdown, TcpStream},
+};
 
 /// Radio contains methods to send and receive data through Commander and Soldier.
 pub trait Radio {

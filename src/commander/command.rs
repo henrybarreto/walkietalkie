@@ -1,5 +1,5 @@
-use std::fmt::{Display, Formatter};
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Formatter};
 
 /// A Command contains attributes to represent a command from Commander to be executed on Soldier.
 ///
@@ -19,8 +19,8 @@ pub struct Command {
     /// The command's arguments.
     pub args: Vec<String>,
 }
-impl Display for Command{
+impl Display for Command {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}",ron::to_string(self).unwrap())
+        write!(f, "{}", ron::to_string(self).unwrap())
     }
 }
