@@ -1,5 +1,4 @@
-use crate::commander::command::Command;
-use crate::devices::Device;
+use crate::devices::Soldier;
 use serde::{Deserialize, Serialize};
 
 /// CommanderConfig contains attributes for the Commander configuration file.
@@ -13,23 +12,20 @@ use serde::{Deserialize, Serialize};
 ///
 ///  let config = CommanderConfig {
 ///     name: "Cpt. Steven Rogers".to_string(),
-///     devices: vec![Device {
+///     soldiers: vec![Soldier {
 ///         address: "127.0.0.1:14114".to_string(),
 ///         seal: Seal {
 ///             username: "".to_string(),
 ///             password: "".to_string(),
 ///         },
 ///     }],
-///     commands: vec![Command {
-///         name: "".to_string(),
-///         args: vec![],
-///     }],
+///    commands: vec![],
 ///  };
 ///
 /// ```
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct CommanderConfig {
     pub name: String,
-    pub devices: Vec<Device>,
-    pub commands: Vec<Command>,
+    pub soldiers: Vec<Soldier>,
+    pub commands: Vec<String>,
 }

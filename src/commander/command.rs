@@ -8,12 +8,15 @@ use std::fmt::{Display, Formatter};
 /// use walkietalkie::commander::command::Command;
 ///
 /// let command = Command {
+///     id: "echo".to_string(),
 ///     name: "echo".to_string(),
 ///     args: vec!["Hello, world!".to_string()],
 /// };
 /// ```
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Command {
+    // The command's id.
+    pub id: String,
     /// The command's name.
     pub name: String,
     /// The command's arguments.

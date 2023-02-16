@@ -56,10 +56,13 @@ impl Soldier {
 
     /// Runs all commands and return a list of Report with the Command output or a empty Report if
     /// command fail.
-    pub fn run_commands(&self, commands: Vec<Command>) -> Vec<Report> {
+    pub fn run_commands(&self, commands: Vec<String>) -> Vec<Report> {
         trace!("Running all commands");
-        commands
-            .into_iter()
+        trace!("Commands: {:?}", self.config.commands);
+        self.config
+            .commands
+            .iter()
+            .filter(|command| commands.contains(&command.id))
             .map(|command| {
                 trace!("Trying to executing a command {}", command.clone());
                 let output = match Self::run_command(command.clone()) {
@@ -82,10 +85,11 @@ impl Soldier {
         trace!("Sending reports to commander...");
         Soldier::send_chucked(tcp_connection, bincode::serialize(&reports)?)
     }
-    /// Receives a list of Commander.
+
+    /// Receives a list of commands.
     pub fn receive_commands(
         tcp_connection: &mut TcpStream,
-    ) -> Result<Vec<Command>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
         trace!("Receiving commands from commander...");
         trace!("Receiving Data");
         let mut file = File::open(Soldier::receive_chucked(tcp_connection)?).unwrap();
@@ -94,7 +98,8 @@ impl Soldier {
         println!("File lenth {}", i);
         trace!("Parsing Data");
 
-        let commands: Vec<Command> = bincode::deserialize(&*buffer)?;
+        let commands: Vec<String> = bincode::deserialize(&*buffer)?;
+        trace!("Received commands: {:?}", commands);
         Ok(commands)
     }
 
@@ -125,6 +130,11 @@ impl Config<SoldierConfig> for Soldier {
                 username: "".to_string(),
                 password: "".to_string(),
             },
+            commands: vec![Command {
+                id: "echo".to_string(),
+                name: "echo".to_string(),
+                args: vec!["Hello World!".to_string()],
+            }],
         };
         let string = ron::ser::to_string_pretty(&config, PrettyConfig::default()).unwrap();
         let mut file = File::create(path).unwrap();

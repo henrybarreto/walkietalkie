@@ -1,3 +1,4 @@
+use crate::commander::command::Command;
 use crate::seal::Seal;
 use serde::{Deserialize, Serialize};
 
@@ -17,6 +18,11 @@ use serde::{Deserialize, Serialize};
 ///     username: "".to_string(),
 ///     password: "".to_string(),
 ///    },
+///     commands: vec![Command {
+///         id: "".to_string(),
+///         name: "".to_string(),
+///         args: vec![],
+///     }],
 /// };
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SoldierConfig {
@@ -25,4 +31,5 @@ pub struct SoldierConfig {
     pub group: String,
     pub user: String,
     pub seal: Seal,
+    pub commands: Vec<Command>,
 }

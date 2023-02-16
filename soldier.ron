@@ -6,5 +6,19 @@
     seal: (
        username: "root",
        password: "root",
-    )
+    ),
+    commands: [
+        Command (
+            id: "echo",
+            name: "echo",
+            args: [
+                "Hello, world!"
+            ]),
+        Command (
+            id: "curl",
+            name: "curl",
+            args: [
+                "www.google.com"
+            ])
+    ]
 )

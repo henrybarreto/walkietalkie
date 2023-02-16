@@ -1,6 +1,6 @@
 [package]
 name = "walkietalkie"
-description = "Walkietalkie is application to execute defined commands on server"
+description = "Walkietalkie is a simple remote command runner."
 keywords = ["linux", "client", "server", "connection", "command",]
 version = "0.1.0"
 authors = ["Henry Barreto <me@henrybarreto.dev>"]

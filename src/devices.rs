@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /// Device contains attributes about a device.
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct Device {
+pub struct Soldier {
     /// The device's address.
     pub address: String,
     /// The device's seal.
