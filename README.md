@@ -84,9 +84,6 @@ with output.
 - Wait new commands
 
 ## How to use?
-
-> Note: The CLI interface is still not implemented, but there are examples inside examples' folder.
-
 The CLI interface is intend to be as simple as possible.
 
 To start a soldier with the right `soldier.ron` configuration file:
